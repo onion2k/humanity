@@ -6,7 +6,7 @@
 import { ERAS } from "../eras.ts";
 ---
 
-<div class="hud" data-theme={ERAS[0]?.id} aria-hidden="true">
+<div class="hud" data-skin="reading" data-theme={ERAS[0]?.id} aria-hidden="true">
   <span class="hud-year"></span>
   <span class="hud-eras">
     {ERAS.map((era, i) => (

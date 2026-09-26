@@ -7,9 +7,16 @@
 // UPDATE_PERF_BASELINE=1, and only for a change meant to move them.
 import { readFileSync, writeFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { measureLoad, measureScroll, type LoadFigures, type ScrollFigures } from "./measure.ts";
+import {
+  measureFilter,
+  measureLoad,
+  measureScroll,
+  type FilterFigures,
+  type LoadFigures,
+  type ScrollFigures,
+} from "./measure.ts";
 
-type Figures = LoadFigures & ScrollFigures;
+type Figures = LoadFigures & ScrollFigures & FilterFigures;
 type Name = keyof Figures;
 
 const BASELINE_PATH = new URL("./baselines/performance.json", import.meta.url);
@@ -33,6 +40,7 @@ const TIMINGS: Name[] = [
   "styleMs",
   "taskMs",
   "worstStepMs",
+  "filterMs",
 ];
 const SIZE_TOLERANCE = 0.02;
 const TIMING_FACTOR = 2;
@@ -54,6 +62,7 @@ const BUDGET: Partial<Record<Name, number>> = {
   worstStepMs: 100,
   longFrames: 3,
   layoutMs: 400,
+  filterMs: 100,
 };
 
 function median(values: number[]): number {
@@ -93,7 +102,9 @@ test("performance holds to its budgets and baselines @perf", async ({
     const load = await measureLoad(loadPage, await context.newCDPSession(loadPage));
     const scrollPage = await context.newPage();
     const scroll = await measureScroll(scrollPage, await context.newCDPSession(scrollPage));
-    runs.push({ ...load, ...scroll });
+    const filterPage = await context.newPage();
+    const filter = await measureFilter(filterPage, await context.newCDPSession(filterPage));
+    runs.push({ ...load, ...scroll, ...filter });
     await context.close();
   }
   const [first] = runs;

@@ -4,6 +4,7 @@
 // plan chapters() makes of the validated data.
 import "../styles/base.css";
 import Chapter from "../components/Chapter.astro";
+import FilterPanel from "../components/FilterPanel.astro";
 import Hud from "../components/Hud.astro";
 import Seam from "../components/Seam.astro";
 import TestApi from "../components/TestApi.astro";
@@ -64,9 +65,23 @@ const testBuild = import.meta.env.PUBLIC_TEST_API === "1";
         </p>
       </div>
     </footer>
-    <Hud />
+    <div class="chrome">
+      <button
+        type="button"
+        class="filter-toggle"
+        data-skin="reading"
+        data-theme="antiquity"
+        aria-expanded="false"
+        aria-controls="filter-panel"
+      >
+        Filter<span class="filter-badge" hidden></span>
+      </button>
+      <Hud />
+    </div>
+    <FilterPanel vocabularies={vocabularies} chapters={plan} total={events.length} />
     <script>
       import "../client/engine.ts";
+      import "../client/filters.ts";
     </script>
     {testBuild && <TestApi />}
   </body>

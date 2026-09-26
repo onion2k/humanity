@@ -77,8 +77,15 @@
   --era-border: 1px;
 }
 
-/* A skin paints its own ground and ink, so a chapter reads in its era whatever surrounds it. */
+/* A skin paints its own ground and ink, so a chapter reads in its era whatever surrounds it. The two dark eras
+   say so, or native controls such as the filter checkboxes would be drawn light on their dark ground. */
 [data-theme] {
   background: var(--ground);
   color: var(--ink);
+  color-scheme: light;
+}
+
+[data-theme="industrial"],
+[data-theme="analog"] {
+  color-scheme: dark;
 }

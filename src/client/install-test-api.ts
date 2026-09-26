@@ -122,6 +122,18 @@ function seamState(): PageState["seam"] {
   };
 }
 
+function filterBoxes(): HTMLInputElement[] {
+  return [...document.querySelectorAll<HTMLInputElement>('#filter-panel input[type="checkbox"]')];
+}
+
+function tickedFilter(): PageState["filter"] {
+  const on = (name: string): string[] =>
+    filterBoxes()
+      .filter((b) => b.name === name && b.checked)
+      .map((b) => b.value);
+  return { reactions: on("reaction"), regions: on("region"), themes: on("theme") };
+}
+
 const api: TestApi = {
   async scrollToEvent(id, offset = 0) {
     const el = required(`[data-event="${CSS.escape(id)}"]`);
@@ -137,6 +149,16 @@ const api: TestApi = {
   },
   async scrollToY(y) {
     await settleScroll(() => y);
+  },
+  async setFilter(filter) {
+    const wanted: Record<string, readonly string[]> = {
+      reaction: filter.reactions,
+      region: filter.regions,
+      theme: filter.themes,
+    };
+    for (const box of filterBoxes()) box.checked = wanted[box.name]?.includes(box.value) ?? false;
+    document.querySelector("#filter-panel")?.dispatchEvent(new Event("change", { bubbles: true }));
+    await frames(2);
   },
   async settle() {
     let still = 0;
@@ -161,6 +183,12 @@ const api: TestApi = {
       overflowing: overflowing(),
       hud: hudState(),
       seam: seamState(),
+      filter: tickedFilter(),
+      dimmed: [...document.querySelectorAll("[data-event][data-dimmed]")].map(
+        (el) => el.getAttribute("data-event") ?? "",
+      ),
+      count: document.querySelector(".filter-count")?.textContent ?? "",
+      panelOpen: document.querySelector<HTMLElement>("#filter-panel")?.hidden === false,
     };
   },
 };

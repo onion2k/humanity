@@ -21,6 +21,9 @@ const { event, side } = placed;
   data-event={event.id}
   data-era={event.era}
   data-year={event.year.start}
+  data-reactions={event.reactions.join(" ")}
+  data-regions={event.regions.join(" ")}
+  data-themes={event.themes.join(" ")}
   data-side={side}
 >
   <div class="card-head">

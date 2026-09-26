@@ -19,7 +19,15 @@ const reactions = reactionsOf(event);
 const main = reactions[0];
 ---
 
-<details class="event-row" data-event={event.id} data-era={event.era} data-year={event.year.start}>
+<details
+  class="event-row"
+  data-event={event.id}
+  data-era={event.era}
+  data-year={event.year.start}
+  data-reactions={event.reactions.join(" ")}
+  data-regions={event.regions.join(" ")}
+  data-themes={event.themes.join(" ")}
+>
   <summary>
     <span class="row-meta">
       {main && `${main.label} · `}

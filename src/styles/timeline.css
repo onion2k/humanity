@@ -392,16 +392,28 @@
   color: var(--ink-muted);
 }
 
-/* The HUD: fixed, top right, in the skin of the era being read. It switches with the text at each midpoint. */
-.hud {
+/* The fixed chrome, top right: the filter button and the HUD, in the skin of the era being read. They switch
+   with the text at each midpoint. Without the engine there is nothing to drive them, so they stay hidden. */
+.chrome {
   display: none;
 }
 
-.engine-on .hud {
+.engine-on .chrome {
   position: fixed;
   top: calc(env(safe-area-inset-top, 0px) + var(--space-3));
   right: var(--space-4);
   z-index: 20;
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+/* The chrome is fixed, so the browser draws it as a layer of its own. Whole-pixel widths keep that layer on whole
+   pixels; at a fractional position its text can be drawn a hair differently from one frame to the next. Each width
+   fits the longest thing it holds: "430 BC" and "Machine Age" in the HUD, and "Filter 386" on the button. */
+.hud {
+  width: var(--hud-width, 148px);
+  box-sizing: border-box;
   display: grid;
   justify-items: end;
   gap: 2px;
@@ -440,6 +452,200 @@
 
 .hud-era[hidden] {
   display: none;
+}
+
+.filter-toggle {
+  width: 124px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-label);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  letter-spacing: var(--type-label-track);
+  text-transform: uppercase;
+  background: var(--ground-raised);
+  color: var(--ink);
+  border: var(--era-border) solid var(--rule);
+  border-radius: var(--era-radius);
+  cursor: pointer;
+}
+
+.filter-toggle[aria-expanded="true"] {
+  background: var(--accent-soft);
+}
+
+.filter-badge {
+  padding: 0 var(--space-2);
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: var(--radius-pill);
+}
+
+.filter-badge[hidden] {
+  display: none;
+}
+
+/* The panel: below the chrome on the right, or a sheet along the bottom of a phone. */
+.filter-panel {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + var(--space-16) + var(--space-4));
+  right: var(--space-4);
+  z-index: 19;
+  width: min(360px, calc(100vw - 2 * var(--space-4)));
+  max-height: calc(100vh - var(--space-24));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--ground-raised);
+  color: var(--ink);
+  border: var(--era-border) solid var(--rule);
+  border-radius: var(--era-radius);
+}
+
+.filter-panel[hidden] {
+  display: none;
+}
+
+.panel-title {
+  margin: 0;
+  font-family: var(--era-display);
+  font-weight: var(--era-weight);
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: var(--era-track);
+  text-transform: var(--era-case);
+}
+
+.filter-count {
+  margin: 0;
+  font-size: var(--type-body-small-size);
+  line-height: var(--type-body-small-line);
+  color: var(--ink-muted);
+}
+
+.filter-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+.filter-group legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-family: var(--font-label);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  letter-spacing: var(--type-label-track);
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.filter-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  font-size: var(--type-body-small-size);
+  line-height: var(--type-body-small-line);
+  cursor: pointer;
+}
+
+.filter-option input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.filter-option .mark {
+  width: 16px;
+  height: 16px;
+}
+
+.filter-clear {
+  justify-self: start;
+  padding: var(--space-1) var(--space-3);
+  font: inherit;
+  font-size: var(--type-body-small-size);
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.era-menu {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.era-menu ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+}
+
+.era-menu a {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 36px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.era-menu a:hover .era-name {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+}
+
+.swatch {
+  width: 16px;
+  height: 16px;
+  background: var(--swatch);
+  border-radius: var(--radius-pill);
+}
+
+.era-meta {
+  font-family: var(--font-label);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--ink-muted);
+}
+
+/* A filter dims what does not match, and never removes it. A dimmed event comes back to full strength while the
+   reader points at it or it has focus, so it can always be read and used. */
+[data-event][data-dimmed] {
+  opacity: 0.3;
+}
+
+[data-event][data-dimmed]:hover,
+[data-event][data-dimmed]:focus-within {
+  opacity: 1;
+}
+
+/* A jump to an era lands below the fixed chrome. */
+.chapter-head h2 {
+  scroll-margin-top: var(--space-24);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 .colophon {
@@ -509,7 +715,19 @@
   }
 
   .engine-on .hud {
+    --hud-width: 136px;
     padding: var(--space-1) var(--space-2);
+  }
+
+  .filter-panel {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    max-height: 70vh;
+    border-width: var(--era-border) 0 0;
+    border-radius: var(--era-radius) var(--era-radius) 0 0;
   }
 
   .hud-year {

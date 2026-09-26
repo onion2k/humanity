@@ -134,3 +134,43 @@ export async function measureScroll(page: Page, cdp: CDPSession): Promise<Scroll
     longFrames: result.long,
   };
 }
+
+export interface FilterFigures {
+  /** The worst time, at 4× CPU slowdown, to apply a filter: tick the boxes, dim the events, restyle and lay out. */
+  filterMs: number;
+}
+
+/** Sets four filters in turn, from nothing ticked to a narrow filter and back, as a reader would. */
+export async function measureFilter(page: Page, cdp: CDPSession): Promise<FilterFigures> {
+  await openTimeline(page);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  const worst = await page.evaluate(async () => {
+    const filters = [
+      { reactions: ["wonder"], regions: [], themes: [] },
+      { reactions: ["wonder", "panic"], regions: ["europe"], themes: [] },
+      { reactions: [], regions: [], themes: ["nuclear-weapons"] },
+      { reactions: [], regions: [], themes: [] },
+    ];
+    const frame = (): Promise<number> => new Promise((resolve) => requestAnimationFrame(resolve));
+    const boxes = [...document.querySelectorAll<HTMLInputElement>('#filter-panel input[type="checkbox"]')];
+    const panel = document.querySelector("#filter-panel");
+    let most = 0;
+    for (const filter of filters) {
+      await frame();
+      const wanted: Record<string, string[]> = {
+        reaction: filter.reactions,
+        region: filter.regions,
+        theme: filter.themes,
+      };
+      const start = performance.now();
+      for (const box of boxes) box.checked = wanted[box.name]?.includes(box.value) ?? false;
+      panel?.dispatchEvent(new Event("change", { bubbles: true }));
+      // Reading a size makes the browser restyle and lay out now, so this times the work and not the wait for a frame.
+      document.body.getBoundingClientRect();
+      most = Math.max(most, performance.now() - start);
+    }
+    return most;
+  });
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+  return { filterMs: Math.round(worst) };
+}

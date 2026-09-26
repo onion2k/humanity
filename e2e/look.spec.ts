@@ -114,3 +114,45 @@ test.describe("under reduced motion", () => {
     }
   }
 });
+
+test.describe("filters", () => {
+  for (const era of ["antiquity", "industrial", "digital"] as const) {
+    test(`the panel open in ${era}`, async ({ page }) => {
+      await scrollToEra(page, era);
+      await page.locator("button.filter-toggle").click();
+      await picture(page, `panel-${era}`);
+    });
+  }
+
+  test("a chapter with a filter set", async ({ page }) => {
+    await page.evaluate(() =>
+      window.__pw?.setFilter({ reactions: ["wonder", "optimism"], regions: [], themes: [] }),
+    );
+    await scrollToEra(page, "machine");
+    await picture(page, "filtered-machine");
+  });
+
+  test("a filter that matches nothing", async ({ page }) => {
+    await page.evaluate(() =>
+      window.__pw?.setFilter({
+        reactions: ["humour"],
+        regions: [],
+        themes: ["nuclear-weapons", "space-exploration"],
+      }),
+    );
+    await scrollToEra(page, "atomic");
+    await page.locator("button.filter-toggle").click();
+    await picture(page, "filtered-nothing");
+  });
+
+  test("a dimmed row with focus, back at full strength", async ({ page }) => {
+    await page.evaluate(() => window.__pw?.setFilter({ reactions: ["wonder"], regions: [], themes: [] }));
+    const row = findEvent(
+      (e) => !e.featured && e.era === "industrial" && !e.reactions.includes("wonder"),
+      "an industrial row",
+    );
+    await scrollToEvent(page, row.id, 200);
+    await page.locator(`[data-event="${row.id}"] summary`).focus();
+    await picture(page, "filtered-focus");
+  });
+});

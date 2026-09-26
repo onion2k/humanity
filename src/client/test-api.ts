@@ -1,6 +1,7 @@
 // window.__pw: the handle Playwright holds the page by, in test builds only.
 // A test sets the scroll position through it and reads back what the reader
 // would see, so no test ever waits on a timeout or guesses at a pixel offset.
+import type { Filter } from "../engine/filter.ts";
 import type { EraId } from "../eras.ts";
 
 export interface PageState {
@@ -20,6 +21,11 @@ export interface PageState {
   hud: { year: string; era: string; theme: EraId | null } | null;
   /** The seam the engine is blending, read back from what it wrote on the page. */
   seam: SeamState | null;
+  /** The filter as the boxes are ticked, the events it dims, what the count says, and whether the panel is open. */
+  filter: Filter;
+  dimmed: string[];
+  count: string;
+  panelOpen: boolean;
 }
 
 export interface SeamState {
@@ -46,6 +52,8 @@ export interface TestApi {
   scrollToY(y: number): Promise<void>;
   /** Steps frames until the page has stopped scrolling, as after a keyboard scroll, and any fonts in flight are in. */
   settle(): Promise<void>;
+  /** Ticks exactly these boxes, as a reader would, and returns once the page has applied them. */
+  setFilter(filter: Filter): Promise<void>;
   state(): PageState;
 }
 

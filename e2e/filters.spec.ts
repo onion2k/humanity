@@ -1,0 +1,191 @@
+// Filters and the era menu, as a reader uses them: tick reactions, regions
+// and themes, see the rest dim without leaving the spine, share the address,
+// and jump to any era. Each test is one of step 6's acceptance criteria.
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test, type Page } from "@playwright/test";
+import {
+  EMPTY_FILTER,
+  countLabel,
+  filterToQuery,
+  isEmpty,
+  matches,
+  type Filter,
+} from "../src/engine/filter.ts";
+import { ERAS } from "../src/eras.ts";
+import { findEvent, openTimeline, scrollToEra, settle, state, timeline } from "./helpers.ts";
+
+const filter = (f: Partial<Filter>): Filter => ({ ...EMPTY_FILTER, ...f });
+const CASES: [string, Filter][] = [
+  ["one reaction", filter({ reactions: ["wonder"] })],
+  ["a reaction that is often second", filter({ reactions: ["cooperation"] })],
+  [
+    "a region and a theme",
+    filter({ regions: ["europe"], themes: [timeline.vocabularies.themes[0]?.id ?? ""] }),
+  ],
+  ["two reactions in one region", filter({ reactions: ["panic", "optimism"], regions: ["north-america"] })],
+];
+
+async function setFilter(page: Page, f: Filter): Promise<void> {
+  await page.evaluate((x) => window.__pw?.setFilter(x), f);
+}
+
+function expectedDimmed(f: Filter): string[] {
+  if (isEmpty(f)) return [];
+  return timeline.events.filter((e) => !matches(e, f)).map((e) => e.id);
+}
+
+test.beforeEach(async ({ page }) => {
+  await openTimeline(page);
+});
+
+test("a filter dims exactly the events that do not match, and the count says how many do", async ({
+  page,
+}) => {
+  for (const [name, f] of CASES) {
+    await setFilter(page, f);
+    const s = await state(page);
+    const dimmed = expectedDimmed(f);
+    expect(s.dimmed, name).toEqual(dimmed);
+    expect(dimmed.length, `${name} should dim something`).toBeGreaterThan(0);
+    expect(s.count, name).toBe(
+      countLabel(timeline.events.length - dimmed.length, timeline.events.length, false),
+    );
+  }
+  await setFilter(page, EMPTY_FILTER);
+  const cleared = await state(page);
+  expect(cleared.dimmed).toEqual([]);
+  expect(cleared.count).toBe(countLabel(timeline.events.length, timeline.events.length, true));
+});
+
+test("a filter that matches nothing dims every event and says how to get them back", async ({ page }) => {
+  const lonely = timeline.vocabularies.regions.find(
+    (r) => !timeline.events.some((e) => e.regions.includes(r.id) && e.reactions.includes("complacency")),
+  );
+  await setFilter(page, filter({ reactions: ["complacency"], regions: [lonely?.id ?? ""] }));
+  const s = await state(page);
+  expect(s.dimmed).toHaveLength(timeline.events.length);
+  expect(s.count).toBe(countLabel(0, timeline.events.length, false));
+});
+
+test("dimmed events stay on the spine, in the tab order, and come back to full strength on focus", async ({
+  page,
+}) => {
+  await setFilter(page, filter({ reactions: ["wonder"] }));
+  expect((await state(page)).eventCount).toBe(timeline.events.length);
+  const row = findEvent((e) => !e.featured && !e.reactions.includes("wonder"), "a row that is not wonder");
+  const summary = page.locator(`[data-event="${row.id}"] summary`);
+  await expect(page.locator(`[data-event="${row.id}"]`)).toHaveAttribute("data-dimmed", "");
+  expect(await summary.evaluate((el) => (el as HTMLElement).tabIndex)).toBe(0);
+  await summary.focus();
+  await expect(page.locator(`[data-event="${row.id}"]`)).toHaveCSS("opacity", "1");
+  await page.locator("body").focus();
+  await page.mouse.move(0, 0);
+  await summary.evaluate((el) => {
+    (el as HTMLElement).blur();
+  });
+  await expect(page.locator(`[data-event="${row.id}"]`)).toHaveCSS("opacity", "0.3");
+});
+
+test("the filter is kept in the address, and a shared address opens with the same events undimmed", async ({
+  page,
+}) => {
+  const f = filter({ reactions: ["panic"], regions: ["europe"] });
+  await setFilter(page, f);
+  expect(new URL(page.url()).search).toBe(filterToQuery(f));
+  const history = await page.evaluate(() => window.history.length);
+  await setFilter(page, filter({ reactions: ["panic"] }));
+  expect(await page.evaluate(() => window.history.length), "no history entry per tick").toBe(history);
+
+  await page.goto(`/${filterToQuery(f)}&region=atlantis&utm_source=x`);
+  await page.waitForFunction(() => window.__pw !== undefined);
+  const s = await state(page);
+  expect(s.filter).toEqual(f);
+  expect(s.dimmed).toEqual(expectedDimmed(f));
+});
+
+test("the panel opens and closes from the keyboard, and the boxes work with Space", async ({ page }) => {
+  const button = page.locator("button.filter-toggle");
+  await button.focus();
+  await page.keyboard.press("Enter");
+  await expect(button).toHaveAttribute("aria-expanded", "true");
+  expect((await state(page)).panelOpen).toBe(true);
+  const box = page.locator('input[name="reaction"][value="wonder"]');
+  await box.focus();
+  await page.keyboard.press("Space");
+  expect((await state(page)).filter.reactions).toEqual(["wonder"]);
+  await page.keyboard.press("Escape");
+  expect((await state(page)).panelOpen).toBe(false);
+  await expect(button).toBeFocused();
+  await expect(button).toHaveAttribute("aria-expanded", "false");
+});
+
+test("every checkbox has a label a screen reader will read, and reactions keep their shape", async ({
+  page,
+}) => {
+  await page.locator("button.filter-toggle").click();
+  const unlabelled = await page
+    .locator(".filter-panel input[type=checkbox]")
+    .evaluateAll(
+      (boxes) => boxes.filter((b) => (b.closest("label")?.textContent ?? "").trim() === "").length,
+    );
+  expect(unlabelled).toBe(0);
+  await expect(page.locator('.filter-panel input[name="reaction"]')).toHaveCount(
+    timeline.vocabularies.reactions.length,
+  );
+  await expect(page.locator('.filter-panel input[name="region"]')).toHaveCount(
+    timeline.vocabularies.regions.length,
+  );
+  await expect(page.locator('.filter-panel input[name="theme"]')).toHaveCount(
+    timeline.vocabularies.themes.length,
+  );
+  await expect(page.locator('.filter-panel label:has(input[name="reaction"]) svg path')).toHaveCount(
+    timeline.vocabularies.reactions.length,
+  );
+});
+
+test("the era menu jumps to each era's chapter, and the HUD agrees on arrival", async ({ page }) => {
+  for (const era of ERAS) {
+    await page.locator("button.filter-toggle").click();
+    await page.locator(`.era-menu a[href="#era-${era.id}"]`).click();
+    await settle(page);
+    const s = await state(page);
+    expect(s.panelOpen, era.id).toBe(false);
+    const top = await page.locator(`#era-${era.id}`).evaluate((h) => h.getBoundingClientRect().top);
+    expect(top, era.id).toBeGreaterThanOrEqual(0);
+    expect(top, era.id).toBeLessThan(200);
+    expect(s.hud?.theme, era.id).toBe(era.id);
+  }
+});
+
+test("the era menu gives each era its swatch, span and count", async ({ page }) => {
+  await page.locator("button.filter-toggle").click();
+  for (const era of ERAS) {
+    const link = page.locator(`.era-menu a[href="#era-${era.id}"]`);
+    const count = timeline.events.filter((e) => e.era === era.id).length;
+    await expect(link).toContainText(era.name);
+    await expect(link).toContainText(`${count} events`);
+    await expect(link.locator(".swatch")).toHaveCSS("background-color", /rgb/);
+  }
+});
+
+test("axe finds nothing with the panel open, and nothing but dimmed events with a filter set", async ({
+  page,
+}) => {
+  for (const era of ["antiquity", "industrial", "digital"] as const) {
+    await scrollToEra(page, era);
+    await page.locator("button.filter-toggle").click();
+    const open = await new AxeBuilder({ page }).include(".filter-panel").analyze();
+    expect(
+      open.violations.map((v) => v.id),
+      era,
+    ).toEqual([]);
+    await page.keyboard.press("Escape");
+  }
+  await setFilter(page, filter({ reactions: ["wonder"] }));
+  await scrollToEra(page, "digital");
+  const filtered = await new AxeBuilder({ page })
+    .include('[data-chapter="digital"]')
+    .exclude("[data-dimmed]")
+    .analyze();
+  expect(filtered.violations.map((v) => v.id)).toEqual([]);
+});

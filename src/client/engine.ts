@@ -59,6 +59,8 @@ const index: EventIndex = {
 };
 
 const hud = document.querySelector<HTMLElement>(".hud");
+/** The fixed chrome that wears the skin of the era being read: the HUD, the filter button and the panel. */
+const readingSkin = [...document.querySelectorAll<HTMLElement>('[data-skin="reading"]')];
 const hudYearText = hud?.querySelector<HTMLElement>(".hud-year");
 const hudNames = [...(hud?.querySelectorAll<HTMLElement>(".hud-era") ?? [])];
 let hudWritten = "";
@@ -111,7 +113,7 @@ function update(): void {
   const key = `${year}|${where.era}|${JSON.stringify(showing)}`;
   if (hud && key !== hudWritten) {
     hudWritten = key;
-    hud.dataset.theme = where.era;
+    for (const element of readingSkin) element.dataset.theme = where.era;
     if (hudYearText) hudYearText.textContent = year;
     for (const name of hudNames) {
       const opacity = showing[name.dataset.era ?? ""];

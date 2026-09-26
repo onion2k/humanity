@@ -1,0 +1,86 @@
+---
+// The way round the timeline: filters by reaction, region and theme, which dim
+// the events that do not match rather than remove them, and a menu to jump to
+// any era. Its script keeps the filter in the address, so a filtered view can
+// be shared. Without JavaScript the button is hidden, since it could not open.
+import { eraSpan, type Chapter } from "../data/chapters.ts";
+import type { Vocabularies } from "../data/timeline.ts";
+import { REACTIONS, isReactionId } from "../reactions.ts";
+import ReactionMark from "./ReactionMark.astro";
+
+interface Props {
+  vocabularies: Vocabularies;
+  chapters: Chapter[];
+  total: number;
+}
+
+const { vocabularies, chapters, total } = Astro.props;
+const reactions = vocabularies.reactions.flatMap((r) =>
+  isReactionId(r.id) ? [{ id: r.id, ...REACTIONS[r.id] }] : [],
+);
+const count = (n: number): string => `${n} ${n === 1 ? "event" : "events"}`;
+---
+
+<section
+  id="filter-panel"
+  class="filter-panel"
+  data-skin="reading"
+  data-theme="antiquity"
+  hidden
+  aria-labelledby="filter-title"
+>
+  <h2 id="filter-title" class="panel-title">
+    Filter events
+  </h2>
+  <p class="filter-count" role="status" aria-live="polite">
+    Showing all {total} events
+  </p>
+  <fieldset class="filter-group">
+    <legend>Reaction</legend>
+    {reactions.map((r) => (
+      <label class="filter-option">
+        <input type="checkbox" name="reaction" value={r.id} />
+        <ReactionMark reaction={r} />
+      </label>
+    ))}
+  </fieldset>
+  <fieldset class="filter-group">
+    <legend>Region</legend>
+    {vocabularies.regions.map((r) => (
+      <label class="filter-option">
+        <input type="checkbox" name="region" value={r.id} />
+        <span class="option-word">{r.label}</span>
+      </label>
+    ))}
+  </fieldset>
+  <fieldset class="filter-group">
+    <legend>Theme</legend>
+    {vocabularies.themes.map((t) => (
+      <label class="filter-option">
+        <input type="checkbox" name="theme" value={t.id} />
+        <span class="option-word">{t.label}</span>
+      </label>
+    ))}
+  </fieldset>
+  <button type="button" class="filter-clear">
+    Clear filters
+  </button>
+  <nav class="era-menu" aria-labelledby="era-menu-title">
+    <h2 id="era-menu-title" class="panel-title">
+      Jump to an era
+    </h2>
+    <ol>
+      {chapters.map(({ era, events }) => (
+        <li>
+          <a href={`#era-${era.id}`}>
+            <span class="swatch" style={`--swatch: var(--era-${era.id})`} aria-hidden="true" />
+            <span class="era-name">{era.name}</span>
+            <span class="era-meta">
+              {eraSpan(era)} · {count(events.length)}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+</section>

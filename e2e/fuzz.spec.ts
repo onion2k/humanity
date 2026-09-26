@@ -25,8 +25,12 @@ async function visibleRows(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     [...document.querySelectorAll<HTMLElement>("details.event-row")]
       .filter((row) => {
-        const r = row.querySelector("summary")?.getBoundingClientRect();
-        return r !== undefined && r.height > 0 && r.top >= 0 && r.bottom <= window.innerHeight;
+        const summary = row.querySelector("summary");
+        const r = summary?.getBoundingClientRect();
+        if (!summary || !r || r.height === 0 || r.top < 0 || r.bottom > window.innerHeight) return false;
+        // Only a row a reader could click: nothing such as the open panel or the HUD lies over its middle.
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        return hit !== null && summary.contains(hit);
       })
       .map((row) => row.dataset.event ?? ""),
   );
@@ -34,7 +38,18 @@ async function visibleRows(page: Page): Promise<string[]> {
 
 /** What a reader might do next. Each choice is drawn from the seeded source, so a seed is a whole replayable run. */
 async function nextStep(page: Page, random: Random): Promise<Step> {
-  const kind = random.pick(["scroll", "jump", "click-row", "tab", "key", "resize", "motion"] as const);
+  const kind = random.pick([
+    "scroll",
+    "jump",
+    "click-row",
+    "tab",
+    "key",
+    "resize",
+    "motion",
+    "tick",
+    "era-menu",
+    "panel",
+  ] as const);
   switch (kind) {
     case "scroll": {
       const max = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
@@ -69,6 +84,37 @@ async function nextStep(page: Page, random: Random): Promise<Step> {
       // A reader can change their system's motion setting while the page is open.
       const reducedMotion = random.pick(["reduce", "no-preference"] as const);
       return { name: `reduced motion ${reducedMotion}`, run: (p) => p.emulateMedia({ reducedMotion }) };
+    }
+    case "tick": {
+      const boxes = await page
+        .locator("#filter-panel input[type=checkbox]")
+        .evaluateAll((els) =>
+          els.map((el) => `${(el as HTMLInputElement).name}=${(el as HTMLInputElement).value}`),
+        );
+      const box = random.pick(boxes);
+      const [name, value] = box.split("=");
+      return {
+        name: `tick ${box}`,
+        run: async (p) => {
+          if (!(await p.locator("#filter-panel").isVisible()))
+            await p.locator("button.filter-toggle").click();
+          await p.locator(`#filter-panel input[name="${name ?? ""}"][value="${value ?? ""}"]`).click();
+        },
+      };
+    }
+    case "era-menu": {
+      const era = random.pick(timeline.events).era;
+      return {
+        name: `era menu to ${era}`,
+        run: async (p) => {
+          if (!(await p.locator("#filter-panel").isVisible()))
+            await p.locator("button.filter-toggle").click();
+          await p.locator(`.era-menu a[href="#era-${era}"]`).click();
+        },
+      };
+    }
+    case "panel": {
+      return { name: "open or close the panel", run: (p) => p.locator("button.filter-toggle").click() };
     }
     case "resize": {
       const width = random.pick(WIDTHS);
@@ -118,6 +164,7 @@ async function brokenRules(page: Page): Promise<string[]> {
     ...(await hudOutOfStep(page, hud?.year)),
     ...seamTextBelowRatio(seam),
     ...(await motionUnderReduce(page, seam)),
+    ...(await filterOutOfStep(page)),
   ];
 }
 
@@ -157,6 +204,42 @@ async function hudOutOfStep(page: Page, label: string | undefined): Promise<stri
   if (around.below !== null && year > around.below)
     broken.push(`the HUD shows ${label}, after ${around.below} below the line`);
   return broken;
+}
+
+/**
+ * What is dimmed must be exactly what does not match the ticked boxes, and the address must say what is ticked.
+ * The rule is written out again here, in the page, rather than borrowed from the engine.
+ */
+async function filterOutOfStep(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const broken: string[] = [];
+    const ticked: Record<string, string[]> = { reaction: [], region: [], theme: [] };
+    for (const box of document.querySelectorAll<HTMLInputElement>("#filter-panel input:checked")) {
+      ticked[box.name]?.push(box.value);
+    }
+    const any = Object.values(ticked).some((values) => values.length > 0);
+    for (const event of document.querySelectorAll<HTMLElement>("[data-event]")) {
+      const has = (name: string, values: string[]): boolean =>
+        values.length === 0 || values.some((v) => (event.dataset[name] ?? "").split(" ").includes(v));
+      const match =
+        !any ||
+        (has("reactions", ticked.reaction ?? []) &&
+          has("regions", ticked.region ?? []) &&
+          has("themes", ticked.theme ?? []));
+      if (match === event.hasAttribute("data-dimmed")) {
+        broken.push(
+          `${event.dataset.event ?? "?"} is ${match ? "dimmed but matches" : "undimmed but does not match"}`,
+        );
+      }
+    }
+    const params = new URLSearchParams(window.location.search);
+    for (const [name, values] of Object.entries(ticked)) {
+      const inAddress = params.get(name)?.split(",") ?? [];
+      if (inAddress.join() !== values.join())
+        broken.push(`the address has ${name}=${inAddress.join()} but ${values.join()} is ticked`);
+    }
+    return broken.slice(0, 5);
+  });
 }
 
 /** Under reduced motion, no seam is part way through its blend and nothing on the page animates. */
