@@ -1,0 +1,29 @@
+---
+// A highlight: one event told in full on one side of the spine. The structure
+// is the same in every era; only the skin on the chapter changes it.
+import type { PlacedEvent } from "../data/chapters.ts";
+import { reactionsOf, tagsOf } from "../data/chapters.ts";
+import type { Vocabularies } from "../data/timeline.ts";
+import EventFoot from "./EventFoot.astro";
+import ReactionMark from "./ReactionMark.astro";
+
+interface Props {
+  placed: PlacedEvent;
+  vocabularies: Vocabularies;
+}
+
+const { placed, vocabularies } = Astro.props;
+const { event, side } = placed;
+---
+
+<article class="event-card" data-event={event.id} data-era={event.era} data-side={side}>
+  <div class="card-head">
+    {reactionsOf(event).map((reaction) => (
+      <ReactionMark reaction={reaction} />
+    ))}
+    <span class="event-date">{event.date}</span>
+  </div>
+  <h3 class="event-title" set:html={event.titleHtml} />
+  <p class="event-body" set:html={event.bodyHtml} />
+  <EventFoot tags={tagsOf(event, vocabularies)} verdict={event.verdict} />
+</article>

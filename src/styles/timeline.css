@@ -1,0 +1,394 @@
+/* The chassis: the layout, the spine, the card and row structure, and the
+   body and label type. None of it changes from era to era. What does change
+   arrives through the skin's variables (skins.css) and the colour tokens, so
+   this file never names an era. */
+
+.intro,
+.chapter-head,
+.track,
+.colophon {
+  max-width: 1040px;
+  margin-inline: auto;
+}
+
+.intro {
+  padding: var(--space-24) var(--space-4) var(--space-16);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.intro h1 {
+  margin: 0;
+  font-family: var(--era-display);
+  font-weight: var(--era-weight);
+  font-size: clamp(44px, 8vw, 88px);
+  line-height: 1;
+  letter-spacing: var(--era-track);
+  text-transform: var(--era-case);
+  color: var(--accent);
+  text-wrap: balance;
+}
+
+.intro p {
+  margin: 0;
+  max-width: 62ch;
+}
+
+.intro .intro-count,
+.chapter-span,
+.row-meta,
+.tag,
+.verdict,
+.reaction {
+  font-family: var(--font-label);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  letter-spacing: var(--type-label-track);
+  text-transform: uppercase;
+}
+
+.intro .intro-count,
+.chapter-span {
+  color: var(--ink-muted);
+}
+
+/* Chapters. The browser skips laying out a chapter until the reader nears it, and holds its place with an
+   estimate from its counts of cards and rows. Once drawn, it remembers its real size. */
+.chapter {
+  padding-inline: var(--space-4);
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto calc(var(--rows) * 44px + var(--cards) * 400px + 320px);
+}
+
+.chapter-head {
+  padding-block: var(--space-16) var(--space-8);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.chapter-head h2 {
+  margin: 0;
+  font-family: var(--era-display);
+  font-weight: var(--era-weight);
+  font-size: 64px;
+  line-height: 68px;
+  letter-spacing: var(--era-track);
+  text-transform: var(--era-case);
+  color: var(--accent);
+  text-wrap: balance;
+}
+
+.chapter-span {
+  margin: 0;
+}
+
+/* The spine runs down the middle of each chapter's track. */
+.track {
+  position: relative;
+  padding-block: var(--space-4) var(--space-16);
+}
+
+.spine {
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--rule);
+  pointer-events: none;
+}
+
+/* Positioned so the events paint over the spine: a row's mark sits on it, and a click on the mark reaches the row. */
+.events {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cards: either side of the spine, each tied to it by a small marker. */
+.slot-card {
+  position: relative;
+  width: calc(50% - 40px);
+  margin-block: var(--space-8);
+}
+
+.slot-card[data-side="left"] {
+  align-self: flex-start;
+}
+
+.slot-card[data-side="right"] {
+  align-self: flex-end;
+}
+
+.slot-card::after {
+  content: "";
+  position: absolute;
+  top: 28px;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+
+.slot-card[data-side="left"]::after {
+  right: -46px;
+}
+
+.slot-card[data-side="right"]::after {
+  left: -46px;
+}
+
+.event-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--ground-raised);
+  color: var(--ink);
+  border: var(--era-border) solid var(--rule);
+  border-radius: var(--era-radius);
+}
+
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+}
+
+.mark {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  fill: var(--mark-fill);
+}
+
+.event-date {
+  font-family: var(--font-label);
+  font-size: var(--type-year-size);
+  line-height: var(--type-year-line);
+  font-weight: var(--type-year-weight);
+  color: var(--ink-muted);
+}
+
+.event-title {
+  margin: 0;
+  font-family: var(--era-display);
+  font-weight: var(--era-weight);
+  font-size: 28px;
+  line-height: 32px;
+  letter-spacing: var(--era-track);
+  text-transform: var(--era-case);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.event-body {
+  margin: 0;
+}
+
+.event-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tag {
+  color: var(--ink-muted);
+}
+
+/* The dot belongs to the tag before it, so when the tags wrap it ends a line rather than starting one. */
+.tag:has(+ .tag)::after {
+  content: "·";
+  margin-left: var(--space-2);
+}
+
+.verdict {
+  margin-left: auto;
+  padding: var(--space-1) var(--space-3);
+  background: var(--accent-soft);
+  color: var(--ink);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-pill);
+}
+
+/* Rows: one line across the spine, the word and date on the left, the mark on the spine, the title on the right. */
+.event-row > summary {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  grid-template-areas: "meta mark title";
+  align-items: center;
+  min-height: 40px;
+  padding-block: var(--space-1);
+  list-style: none;
+  cursor: pointer;
+}
+
+.event-row > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The date keeps the export's own case, so "c. 1000" never becomes "C. 1000". */
+.row-date {
+  text-transform: none;
+}
+
+.row-meta {
+  grid-area: meta;
+  justify-self: end;
+  padding-right: var(--space-2);
+  text-align: right;
+  color: var(--ink-muted);
+}
+
+.row-mark {
+  grid-area: mark;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background: var(--ground);
+  border-radius: var(--radius-pill);
+}
+
+.row-mark .mark {
+  width: 16px;
+  height: 16px;
+}
+
+.row-title {
+  grid-area: title;
+  padding-left: var(--space-2);
+  font-family: var(--era-display);
+  font-weight: var(--era-weight);
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: var(--era-track);
+  text-transform: var(--era-case);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.row-title::after {
+  content: "+";
+  margin-left: var(--space-2);
+  font-family: var(--font-label);
+  font-size: 14px;
+  line-height: 1;
+  color: var(--ink-muted);
+}
+
+.event-row[open] .row-title::after {
+  content: "\2212";
+}
+
+.event-row > summary:hover .row-title {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 4px;
+}
+
+.row-more {
+  margin: var(--space-1) 0 var(--space-3) calc(50% + 28px);
+  max-width: 440px;
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+  font-size: var(--type-body-small-size);
+  line-height: var(--type-body-small-line);
+  background: var(--ground-raised);
+  border: var(--era-border) solid var(--rule);
+  border-radius: var(--era-radius);
+}
+
+.row-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+/* A seam is empty ground: its two halves wear the eras either side of it. */
+.seam {
+  height: 170vh;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+}
+
+.colophon {
+  padding: var(--space-16) var(--space-4) var(--space-24);
+  font-size: var(--type-body-small-size);
+  line-height: var(--type-body-small-line);
+  color: var(--ink-muted);
+}
+
+.colophon p {
+  margin: 0;
+  max-width: 62ch;
+}
+
+/* On a phone the spine moves to the left edge, and cards and rows all sit to its right. */
+@media (max-width: 719px) {
+  .chapter-head h2 {
+    font-size: 44px;
+    line-height: 48px;
+  }
+
+  .spine {
+    left: 14px;
+  }
+
+  .slot-card,
+  .slot-card[data-side="left"],
+  .slot-card[data-side="right"] {
+    align-self: stretch;
+    width: auto;
+    margin-left: 40px;
+  }
+
+  .slot-card[data-side="left"]::after,
+  .slot-card[data-side="right"]::after {
+    right: auto;
+    left: -32px;
+  }
+
+  .event-card {
+    padding: var(--space-4);
+  }
+
+  .event-row > summary {
+    grid-template-columns: 28px 1fr;
+    grid-template-areas:
+      "mark title"
+      ". meta";
+    column-gap: var(--space-3);
+    row-gap: 2px;
+    padding-block: var(--space-2);
+  }
+
+  .row-meta {
+    justify-self: start;
+    padding-right: 0;
+    text-align: left;
+  }
+
+  .row-title {
+    padding-left: 0;
+  }
+
+  .row-more {
+    margin-left: 40px;
+    max-width: none;
+  }
+}

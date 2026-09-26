@@ -1,0 +1,49 @@
+---
+// One era: its heading, then its events on the spine. The chapter carries the
+// era's data-theme, so everything inside wears that era's skin, and the
+// browser skips laying it out until the reader is near it.
+import { eraSpan, type Chapter } from "../data/chapters.ts";
+import type { Vocabularies } from "../data/timeline.ts";
+import EventCard from "./EventCard.astro";
+import EventRow from "./EventRow.astro";
+
+interface Props {
+  chapter: Chapter;
+  vocabularies: Vocabularies;
+}
+
+const { chapter, vocabularies } = Astro.props;
+const { era, events, cards, rows } = chapter;
+const count = `${events.length} ${events.length === 1 ? "event" : "events"}`;
+---
+
+<section
+  class="chapter"
+  data-chapter={era.id}
+  data-theme={era.id}
+  aria-labelledby={`era-${era.id}`}
+  style={`--cards: ${cards}; --rows: ${rows}`}
+>
+  <header class="chapter-head">
+    <h2 id={`era-${era.id}`}>{era.name}</h2>
+    <p class="chapter-span">
+      {eraSpan(era)} · {count}
+    </p>
+  </header>
+  <div class="track">
+    <div class="spine" aria-hidden="true"></div>
+    <ol class="events">
+      {events.map((placed) =>
+        placed.event.featured ? (
+          <li class="slot slot-card" data-side={placed.side}>
+            <EventCard placed={placed} vocabularies={vocabularies} />
+          </li>
+        ) : (
+          <li class="slot slot-row">
+            <EventRow placed={placed} vocabularies={vocabularies} />
+          </li>
+        ),
+      )}
+    </ol>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+---
+// The tags and the hindsight verdict, shared by a card and an opened row so
+// the two can never disagree about what an event is tagged.
+import { VERDICT_LABELS, type VerdictId } from "../reactions.ts";
+
+interface Props {
+  tags: string[];
+  verdict: VerdictId | undefined;
+}
+
+const { tags, verdict } = Astro.props;
+---
+
+<div class="event-foot">
+  {tags.map((tag) => (
+    <span class="tag">{tag}</span>
+  ))}
+  {verdict && <span class="verdict">{VERDICT_LABELS[verdict]}</span>}
+</div>

@@ -1,0 +1,46 @@
+---
+// Every event that is not a highlight: one line across the spine that opens
+// in place. It is a native <details>, so it opens from the keyboard and reads
+// out properly without any script.
+import type { PlacedEvent } from "../data/chapters.ts";
+import { reactionsOf, tagsOf } from "../data/chapters.ts";
+import type { Vocabularies } from "../data/timeline.ts";
+import EventFoot from "./EventFoot.astro";
+import ReactionMark from "./ReactionMark.astro";
+
+interface Props {
+  placed: PlacedEvent;
+  vocabularies: Vocabularies;
+}
+
+const { placed, vocabularies } = Astro.props;
+const { event } = placed;
+const reactions = reactionsOf(event);
+const main = reactions[0];
+---
+
+<details class="event-row" data-event={event.id} data-era={event.era}>
+  <summary>
+    <span class="row-meta">
+      {main && `${main.label} · `}
+      <span class="row-date">{event.date}</span>
+    </span>
+    <span class="row-mark">
+      {main && (
+        <svg class="mark" viewBox="0 0 20 20" aria-hidden="true" style={`--mark-fill: var(--${main.token})`}>
+          <path d={main.path} />
+        </svg>
+      )}
+    </span>
+    <span class="row-title" set:html={event.titleHtml} />
+  </summary>
+  <div class="row-more">
+    <p class="event-body" set:html={event.bodyHtml} />
+    <div class="row-reactions">
+      {reactions.map((reaction) => (
+        <ReactionMark reaction={reaction} />
+      ))}
+    </div>
+    <EventFoot tags={tagsOf(event, vocabularies)} verdict={event.verdict} />
+  </div>
+</details>

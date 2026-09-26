@@ -1,0 +1,18 @@
+---
+// A reaction as its shape and its word. The fill comes from the era's react-*
+// token and only reinforces the shape, so the word is always shown beside it.
+import type { ShownReaction } from "../data/chapters.ts";
+
+interface Props {
+  reaction: ShownReaction;
+}
+
+const { reaction } = Astro.props;
+---
+
+<span class="reaction">
+  <svg class="mark" viewBox="0 0 20 20" aria-hidden="true" style={`--mark-fill: var(--${reaction.token})`}>
+    <path d={reaction.path}></path>
+  </svg>
+  {reaction.label}
+</span>

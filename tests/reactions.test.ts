@@ -3,7 +3,7 @@
 // a word with no mark, or as a mark nobody can see in one era.
 import { describe, expect, it } from "vitest";
 import { loadTimeline } from "../src/data/load.ts";
-import { REACTION_IDS, REACTIONS } from "../src/reactions.ts";
+import { REACTION_IDS, REACTIONS, VERDICT_LABELS } from "../src/reactions.ts";
 import { CONTRAST_PAIRS } from "../src/tokens/contrast.ts";
 import { loadTokens } from "../src/tokens/tokens.ts";
 
@@ -47,5 +47,16 @@ describe("REACTIONS", () => {
       expect(keys).toContain(`${r.token}/ground@3`);
       expect(keys).toContain(`${r.token}/ground-raised@3`);
     }
+  });
+});
+
+describe("VERDICT_LABELS", () => {
+  it("uses the brand book's four words", () => {
+    expect(VERDICT_LABELS).toEqual({
+      vindicated: "Vindicated",
+      overblown: "Overblown",
+      mixed: "Mixed",
+      open: "Still out",
+    });
   });
 });

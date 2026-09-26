@@ -1,0 +1,21 @@
+/* Every face the site uses, self-hosted and cut to Latin. Serving them from
+   the build keeps the pictures the same on every run and sends nothing to a
+   third party. A face is only fetched once text in it is laid out, and each
+   chapter is skipped until the reader nears it, so an era's display face
+   arrives about a chapter ahead of its era. */
+@import "@fontsource/source-serif-4/latin-400.css";
+@import "@fontsource/source-serif-4/latin-400-italic.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/cinzel/latin-600.css";
+@import "@fontsource/grenze-gotisch/latin-600.css";
+@import "@fontsource/eb-garamond/latin-500.css";
+@import "@fontsource/eb-garamond/latin-500-italic.css";
+@import "@fontsource/abril-fatface/latin-400.css";
+@import "@fontsource/josefin-sans/latin-700.css";
+@import "@fontsource/josefin-sans/latin-700-italic.css";
+@import "@fontsource/archivo/latin-800.css";
+@import "@fontsource/archivo/latin-800-italic.css";
+@import "@fontsource/fraunces/latin-700.css";
+@import "@fontsource/fraunces/latin-700-italic.css";
+@import "@fontsource/space-mono/latin-700.css";
+@import "@fontsource/space-mono/latin-700-italic.css";

@@ -1,0 +1,40 @@
+{
+  "desktop": {
+    "htmlBytes": 383829,
+    "htmlGzipBytes": 42163,
+    "cssBytes": 22010,
+    "scriptBytes": 0,
+    "fontsOnLoad": 4,
+    "fontBytesOnLoad": 70272,
+    "domNodes": 6905,
+    "firstContentfulPaintMs": 104,
+    "loadLayoutMs": 16,
+    "loadStyleMs": 34,
+    "fontsAtEnd": 15,
+    "steps": 120,
+    "layoutMs": 112,
+    "styleMs": 36,
+    "taskMs": 396,
+    "worstStepMs": 56,
+    "longFrames": 1
+  },
+  "phone": {
+    "htmlBytes": 383829,
+    "htmlGzipBytes": 42163,
+    "cssBytes": 22010,
+    "scriptBytes": 0,
+    "fontsOnLoad": 4,
+    "fontBytesOnLoad": 70272,
+    "domNodes": 6905,
+    "firstContentfulPaintMs": 96,
+    "loadLayoutMs": 14,
+    "loadStyleMs": 34,
+    "fontsAtEnd": 15,
+    "steps": 141,
+    "layoutMs": 116,
+    "styleMs": 35,
+    "taskMs": 409,
+    "worstStepMs": 59,
+    "longFrames": 1
+  }
+}

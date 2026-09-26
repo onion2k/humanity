@@ -1,0 +1,20 @@
+---
+// The empty stretch between two eras. For now its top half wears the earlier
+// skin and its bottom half the later one, so the skin changes at the midpoint
+// with no readable text on screen. The scroll engine (build step 4) will blend
+// across it, and reduced motion (step 5) keeps this hard change.
+import type { EraId } from "../eras.ts";
+
+interface Props {
+  index: number;
+  from: EraId;
+  to: EraId;
+}
+
+const { index, from, to } = Astro.props;
+---
+
+<div class="seam" data-seam={index} aria-hidden="true">
+  <div class="seam-half" data-theme={from}></div>
+  <div class="seam-half" data-theme={to}></div>
+</div>

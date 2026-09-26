@@ -1,16 +1,18 @@
 ---
-// A placeholder home page until the timeline lands in build step 3. It proves
-// the generated tokens load and the validated events reach the page.
+// The timeline: an intro, then every era as a chapter with its events on the
+// spine, and an empty seam between each pair of eras. The page only draws the
+// plan chapters() makes of the validated data.
 import "../styles/base.css";
+import Chapter from "../components/Chapter.astro";
+import Seam from "../components/Seam.astro";
 import TestApi from "../components/TestApi.astro";
+import { chapters } from "../data/chapters.ts";
 import { pageTimeline } from "../data/page.ts";
-import { ERAS } from "../eras.ts";
 
-const { events } = pageTimeline();
-const eras = ERAS.map((era) => {
-  const inEra = events.filter((e) => e.era === era.id);
-  return { ...era, count: inEra.length, featured: inEra.filter((e) => e.featured).length };
-});
+const { events, vocabularies } = pageTimeline();
+const plan = chapters(events);
+const first = events[0];
+const last = events[events.length - 1];
 const testBuild = import.meta.env.PUBLIC_TEST_API === "1";
 ---
 
@@ -25,18 +27,28 @@ const testBuild = import.meta.env.PUBLIC_TEST_API === "1";
     />
   </head>
   <body>
-    <main>
+    <header class="intro">
       <h1>Panic &amp; Wonder</h1>
       <p>How people have reacted to the new and the unknown, from omens in antiquity to AI.</p>
-      <p data-testid="event-count">{events.length} events</p>
-      <ul>
-        {eras.map((era) => (
-          <li data-era={era.id}>
-            {era.name}: {era.count} events, {era.featured} featured
-          </li>
-        ))}
-      </ul>
+      <p class="intro-count">
+        {events.length} events{first && last && `, ${first.date} to ${last.date}`}
+      </p>
+    </header>
+    <main>
+      {plan.map((chapter, i) => (
+        <>
+          <Chapter chapter={chapter} vocabularies={vocabularies} />
+          {plan[i + 1] && <Seam index={i} from={chapter.era.id} to={plan[i + 1]?.era.id ?? chapter.era.id} />}
+        </>
+      ))}
     </main>
+    <footer data-theme="digital">
+      <div class="colophon">
+        <p>
+          <em>Panic &amp; Wonder</em> is a working title.
+        </p>
+      </div>
+    </footer>
     {testBuild && <TestApi />}
   </body>
 </html>

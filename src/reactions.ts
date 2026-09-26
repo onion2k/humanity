@@ -68,3 +68,11 @@ export const REACTIONS: Record<ReactionId, Reaction> = {
 export const VERDICT_IDS = ["vindicated", "overblown", "mixed", "open"] as const;
 
 export type VerdictId = (typeof VERDICT_IDS)[number];
+
+/** The stamp's words. "Still out" is used rather than guessing. */
+export const VERDICT_LABELS: Record<VerdictId, string> = {
+  vindicated: "Vindicated",
+  overblown: "Overblown",
+  mixed: "Mixed",
+  open: "Still out",
+};
