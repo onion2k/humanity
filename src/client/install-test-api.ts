@@ -23,23 +23,30 @@ function frames(n: number): Promise<void> {
  * the text set in it, so one scroll can land well off. It returns only after two rounds in a row, each waiting for
  * the frame and for any fonts in flight, find the scroll already where the target says.
  */
+/** The browser may round a scroll to a whole pixel, so a scroll within one pixel of its target has landed. */
+const SCROLL_GRAIN = 1;
+
 async function settleScroll(target: () => number): Promise<void> {
   // A target past either end of the page means that end.
   const reachable = (): number =>
     Math.max(0, Math.min(target(), document.documentElement.scrollHeight - window.innerHeight));
   let settledRounds = 0;
+  const rounds: string[] = [];
   for (let i = 0; i < 20; i++) {
     const want = reachable();
-    if (Math.abs(window.scrollY - want) >= 0.5) {
+    rounds.push(`wanted ${want.toFixed(2)} at ${window.scrollY.toFixed(2)}`);
+    if (Math.abs(window.scrollY - want) >= SCROLL_GRAIN) {
       window.scrollTo({ top: want, behavior: "instant" });
       settledRounds = 0;
     }
     await frames(2);
     await document.fonts.ready;
-    settledRounds = Math.abs(window.scrollY - reachable()) < 0.5 ? settledRounds + 1 : 0;
+    settledRounds = Math.abs(window.scrollY - reachable()) < SCROLL_GRAIN ? settledRounds + 1 : 0;
     if (settledRounds === 2) return;
   }
-  throw new Error("The page never stopped moving under the scroll");
+  throw new Error(
+    `The page never stopped moving under the scroll. Last rounds: ${rounds.slice(-4).join("; ")}`,
+  );
 }
 
 function required(selector: string): HTMLElement {
@@ -72,10 +79,53 @@ function overflowing(): string[] {
   });
 }
 
+/** Any CSS colour as #rrggbb, as the screen draws it. Chrome reports a color-mix() in oklab, which a test cannot compare with the tokens. */
+const paint = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+function asHex(colour: string): string {
+  if (!paint) return colour;
+  paint.clearRect(0, 0, 1, 1);
+  paint.fillStyle = colour;
+  paint.fillRect(0, 0, 1, 1);
+  const [r = 0, g = 0, b = 0] = paint.getImageData(0, 0, 1, 1).data;
+  return `#${[r, g, b].map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function hudState(): PageState["hud"] {
+  const hud = document.querySelector<HTMLElement>(".hud");
+  if (!hud || getComputedStyle(hud).display === "none") return null;
+  const names = [...hud.querySelectorAll<HTMLElement>(".hud-era:not([hidden])")];
+  const strongest = names.sort((a, b) => Number(b.style.opacity || 1) - Number(a.style.opacity || 1))[0];
+  const theme = hud.dataset.theme ?? null;
+  return {
+    year: hud.querySelector(".hud-year")?.textContent ?? "",
+    era: strongest?.textContent ?? "",
+    theme: theme !== null && (ERA_IDS as readonly string[]).includes(theme) ? (theme as EraId) : null,
+  };
+}
+
+function seamState(): PageState["seam"] {
+  const seam = document.querySelector<HTMLElement>("[data-seam][data-active]");
+  const stage = seam?.querySelector<HTMLElement>(".seam-stage");
+  if (!seam || !stage) return null;
+  const theme = stage.dataset.theme ?? null;
+  return {
+    index: Number(seam.dataset.seam),
+    pc: Number(seam.style.getPropertyValue("--pc")),
+    pi: theme === seam.dataset.to ? 1 : 0,
+    theme: theme !== null && (ERA_IDS as readonly string[]).includes(theme) ? (theme as EraId) : null,
+    background: asHex(getComputedStyle(stage).backgroundColor),
+    text: [...seam.querySelectorAll<HTMLElement>("[data-layer]")].map((layer) => ({
+      layer: layer.dataset.layer ?? "",
+      colour: asHex(getComputedStyle(layer).color),
+      opacity: Number(getComputedStyle(layer).opacity),
+    })),
+  };
+}
+
 const api: TestApi = {
-  async scrollToEvent(id) {
+  async scrollToEvent(id, offset = 0) {
     const el = required(`[data-event="${CSS.escape(id)}"]`);
-    await settleScroll(() => pageTop(el));
+    await settleScroll(() => pageTop(el) - offset);
   },
   async scrollToEra(id) {
     const el = required(`[data-chapter="${CSS.escape(id)}"]`);
@@ -83,10 +133,21 @@ const api: TestApi = {
   },
   async scrollToSeam(index, progress) {
     const el = required(`[data-seam="${index}"]`);
-    await settleScroll(() => pageTop(el) + progress * el.offsetHeight);
+    await settleScroll(() => pageTop(el) + progress * el.offsetHeight - window.innerHeight / 2);
   },
   async scrollToY(y) {
     await settleScroll(() => y);
+  },
+  async settle() {
+    let still = 0;
+    let last = window.scrollY;
+    for (let i = 0; i < 300 && still < 3; i++) {
+      await frames(1);
+      still = Math.abs(window.scrollY - last) < SCROLL_GRAIN ? still + 1 : 0;
+      last = window.scrollY;
+    }
+    await document.fonts.ready;
+    await frames(2);
   },
   state(): PageState {
     return {
@@ -98,6 +159,8 @@ const api: TestApi = {
       ),
       eventCount: document.querySelectorAll("[data-event]").length,
       overflowing: overflowing(),
+      hud: hudState(),
+      seam: seamState(),
     };
   },
 };

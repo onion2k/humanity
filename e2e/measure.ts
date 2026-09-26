@@ -56,7 +56,8 @@ export async function measureLoad(page: Page, cdp: CDPSession): Promise<LoadFigu
             sizes.html += body.length;
             sizes.htmlGzip += gzipSync(body).length;
           } else if (type === "stylesheet") sizes.css += body.length;
-          else if (type === "script") sizes.script += body.length;
+          // The test API is loaded only in the test build and never ships, so it is left out.
+          else if (type === "script" && !response.url().includes("TestApi")) sizes.script += body.length;
           else if (type === "font") {
             sizes.fonts += 1;
             sizes.fontBytes += body.length;
@@ -73,12 +74,11 @@ export async function measureLoad(page: Page, cdp: CDPSession): Promise<LoadFigu
     domNodes: document.getElementsByTagName("*").length,
     fcp: performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? -1,
   }));
-  // The test API is the only script, and it never ships, so it is left out of what the reader loads.
   return {
     htmlBytes: sizes.html,
     htmlGzipBytes: sizes.htmlGzip,
     cssBytes: sizes.css,
-    scriptBytes: 0,
+    scriptBytes: sizes.script,
     fontsOnLoad: sizes.fonts,
     fontBytesOnLoad: sizes.fontBytes,
     domNodes: inPage.domNodes,

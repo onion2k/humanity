@@ -1,0 +1,18 @@
+---
+// The year HUD: the year of what the reader is reading, and the era's name in
+// its own face. It is drawn by the engine, so it stays hidden without it, and
+// it is hidden from screen readers, which have the chapter headings instead.
+// Only the names the engine shows are displayed, so no era's face loads early.
+import { ERAS } from "../eras.ts";
+---
+
+<div class="hud" data-theme={ERAS[0]?.id} aria-hidden="true">
+  <span class="hud-year"></span>
+  <span class="hud-eras">
+    {ERAS.map((era, i) => (
+      <span class={`hud-era face-${era.id}`} data-era={era.id} hidden={i > 0}>
+        {era.name}
+      </span>
+    ))}
+  </span>
+</div>

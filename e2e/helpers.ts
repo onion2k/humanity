@@ -19,8 +19,8 @@ export async function openTimeline(page: Page): Promise<void> {
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
 }
 
-export async function scrollToEvent(page: Page, id: string): Promise<void> {
-  await page.evaluate((i) => window.__pw?.scrollToEvent(i), id);
+export async function scrollToEvent(page: Page, id: string, offset = 0): Promise<void> {
+  await page.evaluate(([i, o]) => window.__pw?.scrollToEvent(i, o), [id, offset] as const);
 }
 
 export async function scrollToEra(page: Page, id: EraId): Promise<void> {
@@ -33,6 +33,11 @@ export async function scrollToSeam(page: Page, index: number, progress: number):
 
 export async function scrollToY(page: Page, y: number): Promise<void> {
   await page.evaluate((v) => window.__pw?.scrollToY(v), y);
+}
+
+/** Waits, frame by frame, for the page to stop moving after something a reader did. */
+export async function settle(page: Page): Promise<void> {
+  await page.evaluate(() => window.__pw?.settle());
 }
 
 export async function state(page: Page): Promise<PageState> {

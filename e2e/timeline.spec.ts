@@ -119,7 +119,7 @@ test("no event shows more than three tags", async ({ page }) => {
   expect(Math.min(...counts)).toBeGreaterThanOrEqual(1);
 });
 
-test("each seam is 170vh of empty ground whose skin changes at its midpoint", async ({ page }) => {
+test("each seam is 170vh whose skin changes at its midpoint", async ({ page }) => {
   const seams = page.locator("[data-seam]");
   await expect(seams).toHaveCount(ERA_IDS.length - 1);
   const vh = page.viewportSize()?.height ?? 0;
@@ -130,8 +130,6 @@ test("each seam is 170vh of empty ground whose skin changes at its midpoint", as
     expect((await state(page)).eraAtTop, `seam ${i} before its midpoint`).toBe(ERA_IDS[i]);
     await scrollToSeam(page, i, 0.55);
     expect((await state(page)).eraAtTop, `seam ${i} after its midpoint`).toBe(ERA_IDS[i + 1]);
-    const text = await seams.nth(i).evaluate((el) => (el as HTMLElement).innerText.trim());
-    expect(text, `seam ${i} holds no readable text`).toBe("");
   }
 });
 

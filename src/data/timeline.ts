@@ -3,7 +3,7 @@
 // editorial fields. It never throws on bad data. It names each problem as an
 // error (the build stops) or a warning (publishing stops), so one run shows
 // everything wrong at once.
-import { eraForYear, type EraId } from "../eras.ts";
+import { ERAS, eraForYear, type EraId } from "../eras.ts";
 import { REACTION_IDS, isReactionId, type ReactionId, type VerdictId } from "../reactions.ts";
 import { renderInline, type Rendered } from "./markdown.ts";
 import { editorialSchema, rawExportSchema, type RawEvent, type Vocabulary } from "./schema.ts";
@@ -47,8 +47,17 @@ export interface Issue {
   message: string;
 }
 
+/** The change from one era to the next, and the line of copy it shows. */
+export interface SeamText {
+  key: string;
+  from: EraId;
+  to: EraId;
+  caption?: Rendered;
+}
+
 export interface Timeline {
   events: TimelineEvent[];
+  seams: SeamText[];
   vocabularies: Vocabularies;
   issues: Issue[];
 }
@@ -76,10 +85,10 @@ export function buildTimeline(rawInput: unknown, editorialInput: unknown): Timel
   const issues: Issue[] = [];
   if (!raw.success) issues.push(...schemaIssues("panic-and-wonder.json", raw.error));
   if (!editorial.success) issues.push(...schemaIssues("editorial.json", editorial.error));
-  if (!raw.success || !editorial.success) return { events: [], vocabularies: EMPTY_VOCABULARIES, issues };
+  if (!raw.success || !editorial.success) return { events: [], seams: [], vocabularies: EMPTY_VOCABULARIES, issues };
 
   const { vocabularies, events: rawEvents, eventCount } = raw.data;
-  const { featured, events: notes } = editorial.data;
+  const { featured, events: notes, seams: captions } = editorial.data;
 
   const error = (code: string, message: string, id?: string): void => {
     issues.push(id === undefined ? { level: "error", code, message } : { level: "error", code, id, message });
@@ -184,12 +193,31 @@ export function buildTimeline(rawInput: unknown, editorialInput: unknown): Timel
     return event;
   });
 
+  const seams = ERAS.slice(0, -1).flatMap((era, i): SeamText[] => {
+    const next = ERAS[i + 1];
+    if (!next) return [];
+    const key = `${era.id}-${next.id}`;
+    const source = captions[key];
+    if (source === undefined) {
+      warn("no-caption", key, `The change from ${era.name} to ${next.name} has no caption`);
+      return [{ key, from: era.id, to: next.id }];
+    }
+    return [{ key, from: era.id, to: next.id, caption: render(source, undefined, key, "caption") }];
+  });
+  const seamKeys = new Set(seams.map((seam) => seam.key));
+  for (const key of Object.keys(captions)) {
+    if (!seamKeys.has(key)) {
+      error("editorial-unknown-seam", `editorial.json has a caption for "${key}", which is not a change between neighbouring eras`, key);
+    }
+  }
+
   // Array.prototype.sort is stable, so events that start in the same year keep the export's order.
   built.sort((a, b) => a.year.start - b.year.start);
 
   const vocab = (entries: Vocabulary[]): VocabularyItem[] => entries.map(({ id, label }) => ({ id, label }));
   return {
     events: built,
+    seams,
     vocabularies: {
       kinds: vocab(vocabularies.kinds),
       reactions: vocab(vocabularies.reactions),

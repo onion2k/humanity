@@ -41,7 +41,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "contrast": "vitest run tests/contrast.test.ts",
+    "contrast": "vitest run tests/contrast.test.ts tests/seam-text.test.ts",
     "check:quick": "npm run format:check && npm run lint && npm run typecheck && npm run test",
     "check": "npm run check:quick && npm run build && npm run build:test && npm run e2e",
     "publish-check": "tsx scripts/publish-check.ts",

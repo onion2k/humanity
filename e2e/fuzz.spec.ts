@@ -4,8 +4,10 @@
 // must always hold are checked after every step. A failure prints its seed and
 // the steps that led to it, so it can be replayed with FUZZ_SEED.
 import { expect, test, type Page } from "@playwright/test";
+import { READING_LINE } from "../src/engine/reading.ts";
 import { seeded, type Random } from "../src/random.ts";
-import { openTimeline, scrollToEvent, scrollToY, state, timeline } from "./helpers.ts";
+import { contrastRatio } from "../src/tokens/contrast.ts";
+import { openTimeline, scrollToEvent, scrollToY, settle, state, timeline } from "./helpers.ts";
 
 const STEPS = 25;
 const WIDTHS = [375, 414, 719, 720, 1024, 1280, 1440];
@@ -73,7 +75,7 @@ async function nextStep(page: Page, random: Random): Promise<Step> {
 /** The rules no step may break. Each returns what it found wrong, or nothing. */
 async function brokenRules(page: Page): Promise<string[]> {
   const expectedIds = timeline.events.map((e) => e.id);
-  const { overflowing } = await state(page);
+  const { overflowing, hud, seam } = await state(page);
   const inPage = await page.evaluate((ids) => {
     const broken: string[] = [];
     const events = [...document.querySelectorAll<HTMLElement>("[data-event]")];
@@ -105,7 +107,64 @@ async function brokenRules(page: Page): Promise<string[]> {
     }
     return broken;
   }, expectedIds);
-  return [...inPage, ...overflowing.map((o) => `cut off at the side: ${o}`)];
+  return [
+    ...inPage,
+    ...overflowing.map((o) => `cut off at the side: ${o}`),
+    ...(await hudOutOfStep(page, hud?.year)),
+    ...seamTextBelowRatio(seam),
+  ];
+}
+
+/** "430 BC", "AD 69" or "1900" back to a signed year. */
+function yearOf(label: string): number {
+  const bc = /^(\d+) BC$/.exec(label);
+  if (bc) return -Number(bc[1]);
+  return Number(label.replace(/^AD /, ""));
+}
+
+/**
+ * The HUD's year must sit between the last event above the reading line and the first below it. This reads the
+ * events on screen directly rather than asking the engine, so the engine cannot vouch for itself.
+ */
+async function hudOutOfStep(page: Page, label: string | undefined): Promise<string[]> {
+  if (label === undefined) return ["the HUD is not showing"];
+  const around = await page.evaluate((share) => {
+    const line = window.innerHeight * share;
+    let above: number | null = null;
+    let below: number | null = null;
+    for (const chapter of document.querySelectorAll<HTMLElement>("[data-chapter]")) {
+      const box = chapter.getBoundingClientRect();
+      if (box.bottom < 0 || box.top > window.innerHeight) continue;
+      for (const event of chapter.querySelectorAll<HTMLElement>("[data-event]")) {
+        const top = event.getBoundingClientRect().top;
+        const year = Number(event.dataset.year);
+        if (top <= line) above = year;
+        else if (below === null) below = year;
+      }
+    }
+    return { above, below };
+  }, READING_LINE);
+  const year = yearOf(label);
+  const broken: string[] = [];
+  if (around.above !== null && year < around.above)
+    broken.push(`the HUD shows ${label}, before ${around.above} above the line`);
+  if (around.below !== null && year > around.below)
+    broken.push(`the HUD shows ${label}, after ${around.below} below the line`);
+  return broken;
+}
+
+const RATIO: Record<string, number> = { caption: 4.5, "year-from": 3, "year-to": 3 };
+
+function seamTextBelowRatio(seam: Awaited<ReturnType<typeof state>>["seam"]): string[] {
+  if (!seam) return [];
+  return seam.text.flatMap((t) => {
+    if (t.opacity === 0) return [];
+    const ratio = contrastRatio(t.colour, seam.background);
+    const min = RATIO[t.layer] ?? 4.5;
+    return ratio < min
+      ? [`seam ${seam.index} ${t.layer} shows at ${ratio.toFixed(2)}:1, below ${min}:1`]
+      : [];
+  });
 }
 
 test.describe("fuzz", () => {
@@ -123,6 +182,7 @@ test.describe("fuzz", () => {
         done.push(step.name);
         if (process.env.FUZZ_LOG) console.log(`FUZZLOG ${step.name}`);
         await step.run(page);
+        await settle(page);
         const broken = await brokenRules(page);
         expect(broken, `Replay with FUZZ_SEED=${seed}. Steps:\n  ${done.join("\n  ")}`).toEqual([]);
       }

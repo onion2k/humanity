@@ -1,8 +1,11 @@
 /* The part of each era's skin that is not a colour: its display face, how it
    sets titles, and its card edge. Colours come from tokens.css under the same
    [data-theme] selectors. The chassis in timeline.css reads only these
-   variables, so it never has to know which era it is in. */
-[data-theme="antiquity"] {
+   variables, so it never has to know which era it is in. A .face-<era> class
+   takes an era's face without its colours, for text that crossfades between
+   two eras' faces while wearing one era's colours. */
+[data-theme="antiquity"],
+.face-antiquity {
   --era-display: var(--font-antiquity);
   --era-weight: var(--display-antiquity-weight);
   --era-case: uppercase;
@@ -10,7 +13,8 @@
   --era-radius: var(--radius-none);
   --era-border: 1px;
 }
-[data-theme="medieval"] {
+[data-theme="medieval"],
+.face-medieval {
   --era-display: var(--font-medieval);
   --era-weight: var(--display-medieval-weight);
   --era-case: none;
@@ -18,7 +22,8 @@
   --era-radius: var(--radius-none);
   --era-border: 1px;
 }
-[data-theme="print"] {
+[data-theme="print"],
+.face-print {
   --era-display: var(--font-print);
   --era-weight: var(--display-print-weight);
   --era-case: none;
@@ -26,7 +31,8 @@
   --era-radius: var(--radius-none);
   --era-border: 1px;
 }
-[data-theme="industrial"] {
+[data-theme="industrial"],
+.face-industrial {
   --era-display: var(--font-industrial);
   --era-weight: var(--display-industrial-weight);
   --era-case: none;
@@ -34,7 +40,8 @@
   --era-radius: var(--radius-none);
   --era-border: 2px;
 }
-[data-theme="machine"] {
+[data-theme="machine"],
+.face-machine {
   --era-display: var(--font-machine);
   --era-weight: var(--display-machine-weight);
   --era-case: uppercase;
@@ -42,7 +49,8 @@
   --era-radius: var(--radius-md);
   --era-border: 1px;
 }
-[data-theme="atomic"] {
+[data-theme="atomic"],
+.face-atomic {
   --era-display: var(--font-atomic);
   --era-weight: var(--display-atomic-weight);
   --era-case: none;
@@ -50,7 +58,8 @@
   --era-radius: var(--radius-lg);
   --era-border: 0px;
 }
-[data-theme="analog"] {
+[data-theme="analog"],
+.face-analog {
   --era-display: var(--font-analog);
   --era-weight: var(--display-analog-weight);
   --era-case: none;
@@ -58,7 +67,8 @@
   --era-radius: var(--radius-lg);
   --era-border: 1px;
 }
-[data-theme="digital"] {
+[data-theme="digital"],
+.face-digital {
   --era-display: var(--font-digital);
   --era-weight: var(--display-digital-weight);
   --era-case: none;

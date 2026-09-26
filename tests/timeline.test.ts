@@ -47,6 +47,18 @@ function rawExport(events: Record<string, unknown>[]): Record<string, unknown> {
   return { ...realExport, events, eventCount: events.length };
 }
 
+/** An overlay with a caption on every seam, so a test about publishing sees only the issues it sets up. */
+const CAPTIONED = {
+  seams: Object.fromEntries(
+    ERA_IDS.slice(0, -1).map((from, i) => [`${from}-${ERA_IDS[i + 1] ?? ""}`, "A caption."]),
+  ),
+};
+
+/** The issues about events, leaving out the seams' captions, which an overlay built for one event does not supply. */
+function eventIssues(issues: Issue[]): Issue[] {
+  return issues.filter((i) => i.code !== "no-caption");
+}
+
 function codes(issues: Issue[]): string[] {
   return issues.map((i) => `${i.level}:${i.code}${i.id ? `:${i.id}` : ""}`);
 }
@@ -93,6 +105,55 @@ describe("the real export", () => {
   it("warns about the events that still lack sources, and about nothing unexpected", () => {
     const warnings = result.issues.filter((i) => i.level === "warning");
     expect(new Set(warnings.map((w) => w.code))).toEqual(new Set(["no-sources", "year-in-title"]));
+  });
+
+  it("has a caption for every seam", () => {
+    expect(result.seams.map((seam) => [seam.from, seam.to, seam.caption !== undefined])).toEqual(
+      ERA_IDS.slice(0, -1).map((from, i) => [from, ERA_IDS[i + 1], true]),
+    );
+  });
+});
+
+describe("seam captions", () => {
+  const one = rawExport([rawEvent()]);
+
+  it("gives every pair of neighbouring eras a seam, keyed from-to, with its caption rendered", () => {
+    const { seams } = buildTimeline(one, {
+      seams: { "print-industrial": "Steam, then *The Times* on a steam press." },
+    });
+    expect(seams).toHaveLength(ERA_IDS.length - 1);
+    const seam = seams.find((s) => s.key === "print-industrial");
+    expect(seam?.caption).toEqual({
+      text: "Steam, then The Times on a steam press.",
+      html: "Steam, then <em>The Times</em> on a steam press.",
+    });
+  });
+
+  it("warns about a seam with no caption, which stops publishing but not the build", () => {
+    const { issues } = buildTimeline(one, { seams: { "print-industrial": "Steam." } });
+    const missing = issues.filter((i) => i.code === "no-caption").map((i) => i.id);
+    expect(missing).toHaveLength(ERA_IDS.length - 2);
+    expect(missing).not.toContain("print-industrial");
+    expect(issues.find((i) => i.code === "no-caption")?.level).toBe("warning");
+  });
+
+  it.each([
+    [
+      "a seam between eras that are not neighbours",
+      { seams: { "print-machine": "Skips an era." } },
+      "print-machine",
+    ],
+    ["a seam the wrong way round", { seams: { "industrial-print": "Backwards." } }, "industrial-print"],
+    ["an era that does not exist", { seams: { "print-bronze": "No such era." } }, "print-bronze"],
+  ])("reports %s as an error", (_, editorial, key) => {
+    expect(codes(buildTimeline(one, editorial).issues)).toContain(`error:editorial-unknown-seam:${key}`);
+  });
+
+  it("reports a caption with markdown it cannot render", () => {
+    const { issues } = buildTimeline(one, {
+      seams: { "print-industrial": "A [link](https://example.org)." },
+    });
+    expect(codes(issues)).toContain("error:markdown:print-industrial");
   });
 });
 
@@ -278,14 +339,14 @@ describe("the editorial overlay", () => {
 describe("the publish warnings", () => {
   it("warns about an event with no sources", () => {
     const { issues } = buildTimeline(rawExport([rawEvent({ source: null })]), {});
-    expect(codes(issues)).toEqual(["warning:no-sources:1910-comet-pills"]);
+    expect(codes(eventIssues(issues))).toEqual(["warning:no-sources:1910-comet-pills"]);
   });
 
   it("is quiet once the overlay supplies a source", () => {
     const { issues } = buildTimeline(rawExport([rawEvent({ source: null })]), {
       events: { "1910-comet-pills": { sources: ["https://example.org"] } },
     });
-    expect(issues).toEqual([]);
+    expect(eventIssues(issues)).toEqual([]);
   });
 
   it.each(["Comet of 1857", "November 1882 solar storm", "1889–1890 pandemic", "Eclipse of 585 BC"])(
@@ -300,7 +361,7 @@ describe("the publish warnings", () => {
     "does not mistake a number for a year in %j",
     (title) => {
       const { issues } = buildTimeline(rawExport([rawEvent({ title, titleMarkdown: title })]), {});
-      expect(issues).toEqual([]);
+      expect(eventIssues(issues)).toEqual([]);
     },
   );
 
@@ -309,7 +370,7 @@ describe("the publish warnings", () => {
       rawExport([rawEvent({ title: "2001: A Space Odyssey", titleMarkdown: "*2001: A Space Odyssey*" })]),
       {},
     );
-    expect(issues).toEqual([]);
+    expect(eventIssues(issues)).toEqual([]);
   });
 
   it("lets the overlay allow a year that is part of a name, with a reason", () => {
@@ -317,7 +378,7 @@ describe("the publish warnings", () => {
     const { issues } = buildTimeline(rawExport([rawEvent({ title, titleMarkdown: title })]), {
       events: { "1910-comet-pills": { allowYearInTitle: "The year is part of the asteroid's designation." } },
     });
-    expect(issues).toEqual([]);
+    expect(eventIssues(issues)).toEqual([]);
   });
 });
 
@@ -331,7 +392,7 @@ describe("the paths", () => {
 describe("the gates on the data", () => {
   const broken = buildTimeline(
     rawExport([rawEvent({ reactions: ["Glee"] }), rawEvent({ id: "b", source: null })]),
-    {},
+    CAPTIONED,
   );
 
   it("lets the build through with warnings but stops it on an error, naming each one", () => {
@@ -345,10 +406,13 @@ describe("the gates on the data", () => {
 
   it("stops publishing on warnings as well as errors", () => {
     expect(() => {
-      assertPublishable(buildTimeline(rawExport([rawEvent()]), {}));
+      assertPublishable(buildTimeline(rawExport([rawEvent()]), CAPTIONED));
     }).not.toThrow();
     expect(() => {
-      assertPublishable(buildTimeline(rawExport([rawEvent({ source: null })]), {}));
+      assertPublishable(buildTimeline(rawExport([rawEvent()]), {}));
+    }).toThrow(/7 issues:\n {2}warning no-caption antiquity-medieval/);
+    expect(() => {
+      assertPublishable(buildTimeline(rawExport([rawEvent({ source: null })]), CAPTIONED));
     }).toThrow(/1 issue:\n {2}warning no-sources 1910-comet-pills/);
     expect(() => {
       assertPublishable(broken);

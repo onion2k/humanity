@@ -1,5 +1,5 @@
 // The pictures the page is held to: the intro, the start of every chapter,
-// every seam at its midpoint, and each edge case from the checklist on a card
+// five points through every seam, and each edge case from the checklist on a card
 // and on a row. A picture changes only for a change meant to move it, and
 // every one written is looked at before it is kept.
 import { expect, test, type Page } from "@playwright/test";
@@ -38,12 +38,16 @@ for (const era of ERA_IDS) {
   });
 }
 
+/** Through each seam: the earlier era with its text, into the blend, the midpoint, out of it, and the later era. */
+const SEAM_POINTS = [0.15, 0.4, 0.5, 0.6, 0.85];
+
 for (let i = 0; i < ERA_IDS.length - 1; i++) {
-  test(`the seam from ${ERA_IDS[i]} to ${ERA_IDS[i + 1]}, at its midpoint`, async ({ page }) => {
-    // The seam is 1.7 viewports tall, so this puts its midpoint across the middle of the screen.
-    await scrollToSeam(page, i, 0.5 - 1 / (2 * 1.7));
-    await picture(page, `seam-${ERA_IDS[i]}-${ERA_IDS[i + 1]}`);
-  });
+  for (const raw of SEAM_POINTS) {
+    test(`the seam from ${ERA_IDS[i]} to ${ERA_IDS[i + 1]}, ${raw * 100}% through`, async ({ page }) => {
+      await scrollToSeam(page, i, raw);
+      await picture(page, `seam-${ERA_IDS[i]}-${ERA_IDS[i + 1]}-${String(raw * 100).padStart(2, "0")}`);
+    });
+  }
 }
 
 const cases = [
@@ -80,10 +84,8 @@ for (const [name, match, what] of cases) {
   test(`edge case: ${what}`, async ({ page }) => {
     const e = findEvent(match, what);
     if (name.startsWith("row-open")) await page.locator(`[data-event="${e.id}"] summary`).click();
-    await scrollToEvent(page, e.id);
     // Leave a little of what comes before in view, so the picture shows the event in its place on the spine.
-    const y = (await page.evaluate(() => window.scrollY)) - 120;
-    await scrollToY(page, Math.max(0, y));
+    await scrollToEvent(page, e.id, 120);
     await picture(page, name);
   });
 }

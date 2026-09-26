@@ -15,8 +15,16 @@ type Name = keyof Figures;
 const BASELINE_PATH = new URL("./baselines/performance.json", import.meta.url);
 
 /** Exact counts, sizes that move only with the content, and timings that wobble run to run. */
-const EXACT: Name[] = ["fontsOnLoad", "fontsAtEnd", "scriptBytes"];
-const SIZES: Name[] = ["htmlBytes", "htmlGzipBytes", "cssBytes", "fontBytesOnLoad", "domNodes", "steps"];
+const EXACT: Name[] = ["fontsOnLoad", "fontsAtEnd"];
+const SIZES: Name[] = [
+  "htmlBytes",
+  "htmlGzipBytes",
+  "cssBytes",
+  "scriptBytes",
+  "fontBytesOnLoad",
+  "domNodes",
+  "steps",
+];
 const TIMINGS: Name[] = [
   "firstContentfulPaintMs",
   "loadLayoutMs",
@@ -38,7 +46,7 @@ const TIMING_SLACK_MS = 25;
 const BUDGET: Partial<Record<Name, number>> = {
   htmlGzipBytes: 60_000,
   cssBytes: 40_000,
-  scriptBytes: 0,
+  scriptBytes: 10_000,
   domNodes: 9_000,
   fontsOnLoad: 5,
   firstContentfulPaintMs: 400,

@@ -16,16 +16,36 @@ export interface PageState {
    * the page scroll sideways, so the page's own scroll width cannot show this.
    */
   overflowing: string[];
+  /** The HUD as drawn: its year, the era name showing most strongly, and the skin it wears. */
+  hud: { year: string; era: string; theme: EraId | null } | null;
+  /** The seam the engine is blending, read back from what it wrote on the page. */
+  seam: SeamState | null;
+}
+
+export interface SeamState {
+  index: number;
+  pc: number;
+  pi: number;
+  /** The stage's skin, which switches at the midpoint, and its drawn background as #rrggbb. */
+  theme: EraId | null;
+  background: string;
+  /** Every piece of text on the stage with its drawn colour and opacity. */
+  text: { layer: string; colour: string; opacity: number }[];
 }
 
 export interface TestApi {
-  /** Scrolls so the event's top is at the top of the viewport, and returns once it has stopped moving. */
-  scrollToEvent(id: string): Promise<void>;
+  /** Scrolls so the event's top is `offset` pixels below the top of the viewport, and returns once it has stopped moving. */
+  scrollToEvent(id: string, offset?: number): Promise<void>;
   /** Scrolls so the era's chapter starts at the top of the viewport. */
   scrollToEra(id: EraId): Promise<void>;
-  /** Scrolls to a point through the seam that follows the chapter at this index: 0 at its top, 1 at its bottom. */
+  /**
+   * Scrolls so the middle of the viewport is this far through the seam after the chapter at this index: 0 at its
+   * top, 1 at its bottom. This is the engine's own measure, so 0.5 is the seam's midpoint.
+   */
   scrollToSeam(index: number, progress: number): Promise<void>;
   scrollToY(y: number): Promise<void>;
+  /** Steps frames until the page has stopped scrolling, as after a keyboard scroll, and any fonts in flight are in. */
+  settle(): Promise<void>;
   state(): PageState;
 }
 

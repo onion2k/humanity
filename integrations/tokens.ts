@@ -2,12 +2,14 @@
 // starts or builds, and restarts the dev server when the tokens change. A build
 // stops if any text pair fails its contrast ratio in any era. Without it, the
 // page would run on a stale copy of the palette that the contrast gate never saw.
+// The seam text gate runs here too, since the seams' fades come from the same palette.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
 import { assertContrast } from "../src/tokens/contrast.ts";
 import { tokensToCss } from "../src/tokens/css.ts";
+import { assertSeamText } from "../src/tokens/seams.ts";
 import { TOKENS_PATH, loadTokens } from "../src/tokens/tokens.ts";
 
 export const TOKENS_CSS_PATH = fileURLToPath(new URL("../src/styles/tokens.css", import.meta.url));
@@ -35,6 +37,7 @@ export default function tokens(): AstroIntegration {
         const loaded = loadTokens();
         try {
           assertContrast(loaded);
+          assertSeamText(loaded);
         } catch (error) {
           // The dev server keeps running so the palette can be fixed while looking at it.
           if (command === "build") throw error;
