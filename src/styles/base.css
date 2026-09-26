@@ -1,0 +1,33 @@
+/* The page's ground and type, taken only from tokens. Everything the chassis
+   draws starts from here, so no element falls back to the browser's colours. */
+@import "./tokens.css";
+
+html {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 40rem;
+  margin-inline: auto;
+  padding: var(--space-16) var(--space-4);
+}
+
+h1 {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-antiquity);
+  font-weight: var(--display-antiquity-weight);
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}

@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+# Generated from design-system/tokens.json on every dev start and build.
+src/styles/tokens.css
