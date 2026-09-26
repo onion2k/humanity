@@ -10,3 +10,6 @@ data/
 HANDOFF.md
 # The desktop app's own settings, written by the app in its own format.
 .claude/
+dist-test/
+test-results/
+playwright-report/

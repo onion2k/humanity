@@ -1,0 +1,105 @@
+// Installs window.__pw in test builds. The page itself never loads this, so
+// the shipped site has no script at all until the scroll engine arrives.
+import { ERA_IDS, type EraId } from "../eras.ts";
+import type { PageState, TestApi } from "./test-api.ts";
+
+/** Resolves after the browser has drawn n frames, so a scroll has been laid out before anything reads it. */
+function frames(n: number): Promise<void> {
+  return new Promise((resolve) => {
+    const step = (left: number): void => {
+      if (left === 0) resolve();
+      else
+        requestAnimationFrame(() => {
+          step(left - 1);
+        });
+    };
+    step(n);
+  });
+}
+
+/**
+ * Scrolls to wherever `target` says, again and again, until the page has stopped moving under it. Chapters off
+ * screen are sized by an estimate until they are drawn, and a display face that arrives late changes the height of
+ * the text set in it, so one scroll can land well off. It returns only after two rounds in a row, each waiting for
+ * the frame and for any fonts in flight, find the scroll already where the target says.
+ */
+async function settleScroll(target: () => number): Promise<void> {
+  // A target past either end of the page means that end.
+  const reachable = (): number =>
+    Math.max(0, Math.min(target(), document.documentElement.scrollHeight - window.innerHeight));
+  let settledRounds = 0;
+  for (let i = 0; i < 20; i++) {
+    const want = reachable();
+    if (Math.abs(window.scrollY - want) >= 0.5) {
+      window.scrollTo({ top: want, behavior: "instant" });
+      settledRounds = 0;
+    }
+    await frames(2);
+    await document.fonts.ready;
+    settledRounds = Math.abs(window.scrollY - reachable()) < 0.5 ? settledRounds + 1 : 0;
+    if (settledRounds === 2) return;
+  }
+  throw new Error("The page never stopped moving under the scroll");
+}
+
+function required(selector: string): HTMLElement {
+  const el = document.querySelector<HTMLElement>(selector);
+  if (!el) throw new Error(`Nothing on the page matches ${selector}`);
+  return el;
+}
+
+const pageTop = (el: HTMLElement): number => el.getBoundingClientRect().top + window.scrollY;
+
+function eraAtTop(): EraId | null {
+  const hit = document.elementFromPoint(window.innerWidth / 2, 1);
+  const theme = hit?.closest("[data-theme]")?.getAttribute("data-theme") ?? null;
+  return theme !== null && (ERA_IDS as readonly string[]).includes(theme) ? (theme as EraId) : null;
+}
+
+/** The blocks a reader has to be able to read whole: headings, cards, row lines and opened rows. */
+const READABLE =
+  ".intro, .chapter-head, .event-card, .event-row > summary, .event-row[open] > .row-more, .colophon";
+
+function overflowing(): string[] {
+  return [...document.querySelectorAll<HTMLElement>(READABLE)].flatMap((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 && r.height === 0) return [];
+    if (r.left >= -0.5 && r.right <= document.documentElement.clientWidth + 0.5) return [];
+    const where = el.closest("[data-event]")?.getAttribute("data-event") ?? el.className;
+    return [
+      `${where} (${el.className || el.tagName.toLowerCase()}) spans ${Math.round(r.left)}–${Math.round(r.right)}`,
+    ];
+  });
+}
+
+const api: TestApi = {
+  async scrollToEvent(id) {
+    const el = required(`[data-event="${CSS.escape(id)}"]`);
+    await settleScroll(() => pageTop(el));
+  },
+  async scrollToEra(id) {
+    const el = required(`[data-chapter="${CSS.escape(id)}"]`);
+    await settleScroll(() => pageTop(el));
+  },
+  async scrollToSeam(index, progress) {
+    const el = required(`[data-seam="${index}"]`);
+    await settleScroll(() => pageTop(el) + progress * el.offsetHeight);
+  },
+  async scrollToY(y) {
+    await settleScroll(() => y);
+  },
+  state(): PageState {
+    return {
+      scrollY: window.scrollY,
+      viewportHeight: window.innerHeight,
+      eraAtTop: eraAtTop(),
+      openRows: [...document.querySelectorAll("details.event-row[open]")].map(
+        (el) => el.getAttribute("data-event") ?? "",
+      ),
+      eventCount: document.querySelectorAll("[data-event]").length,
+      overflowing: overflowing(),
+    };
+  },
+};
+
+window.__pw = api;

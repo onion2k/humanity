@@ -2,6 +2,7 @@
 // A placeholder home page until the timeline lands in build step 3. It proves
 // the generated tokens load and the validated events reach the page.
 import "../styles/base.css";
+import TestApi from "../components/TestApi.astro";
 import { pageTimeline } from "../data/page.ts";
 import { ERAS } from "../eras.ts";
 
@@ -10,6 +11,7 @@ const eras = ERAS.map((era) => {
   const inEra = events.filter((e) => e.era === era.id);
   return { ...era, count: inEra.length, featured: inEra.filter((e) => e.featured).length };
 });
+const testBuild = import.meta.env.PUBLIC_TEST_API === "1";
 ---
 
 <html lang="en" data-theme="antiquity">
@@ -35,5 +37,6 @@ const eras = ERAS.map((era) => {
         ))}
       </ul>
     </main>
+    {testBuild && <TestApi />}
   </body>
 </html>
