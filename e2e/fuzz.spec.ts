@@ -34,7 +34,7 @@ async function visibleRows(page: Page): Promise<string[]> {
 
 /** What a reader might do next. Each choice is drawn from the seeded source, so a seed is a whole replayable run. */
 async function nextStep(page: Page, random: Random): Promise<Step> {
-  const kind = random.pick(["scroll", "jump", "click-row", "tab", "key", "resize"] as const);
+  const kind = random.pick(["scroll", "jump", "click-row", "tab", "key", "resize", "motion"] as const);
   switch (kind) {
     case "scroll": {
       const max = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
@@ -64,6 +64,11 @@ async function nextStep(page: Page, random: Random): Promise<Step> {
     case "key": {
       const key = random.pick(["Enter", "Space"] as const);
       return { name: `press ${key}`, run: (p) => p.keyboard.press(key) };
+    }
+    case "motion": {
+      // A reader can change their system's motion setting while the page is open.
+      const reducedMotion = random.pick(["reduce", "no-preference"] as const);
+      return { name: `reduced motion ${reducedMotion}`, run: (p) => p.emulateMedia({ reducedMotion }) };
     }
     case "resize": {
       const width = random.pick(WIDTHS);
@@ -112,6 +117,7 @@ async function brokenRules(page: Page): Promise<string[]> {
     ...overflowing.map((o) => `cut off at the side: ${o}`),
     ...(await hudOutOfStep(page, hud?.year)),
     ...seamTextBelowRatio(seam),
+    ...(await motionUnderReduce(page, seam)),
   ];
 }
 
@@ -150,6 +156,23 @@ async function hudOutOfStep(page: Page, label: string | undefined): Promise<stri
     broken.push(`the HUD shows ${label}, before ${around.above} above the line`);
   if (around.below !== null && year > around.below)
     broken.push(`the HUD shows ${label}, after ${around.below} below the line`);
+  return broken;
+}
+
+/** Under reduced motion, no seam is part way through its blend and nothing on the page animates. */
+async function motionUnderReduce(
+  page: Page,
+  seam: Awaited<ReturnType<typeof state>>["seam"],
+): Promise<string[]> {
+  const { reduce, animations } = await page.evaluate(() => ({
+    reduce: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    animations: document.getAnimations().length,
+  }));
+  if (!reduce) return [];
+  const broken: string[] = [];
+  if (seam && seam.pc !== 0 && seam.pc !== 1)
+    broken.push(`seam ${seam.index} is ${seam.pc} through its blend under reduced motion`);
+  if (animations > 0) broken.push(`${animations} animations run under reduced motion`);
   return broken;
 }
 

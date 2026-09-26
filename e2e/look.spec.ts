@@ -43,7 +43,9 @@ const SEAM_POINTS = [0.15, 0.4, 0.5, 0.6, 0.85];
 
 for (let i = 0; i < ERA_IDS.length - 1; i++) {
   for (const raw of SEAM_POINTS) {
-    test(`the seam from ${ERA_IDS[i]} to ${ERA_IDS[i + 1]}, ${raw * 100}% through`, async ({ page }) => {
+    test(`the seam from ${ERA_IDS[i]} to ${ERA_IDS[i + 1]}, ${Math.round(raw * 100)}% through`, async ({
+      page,
+    }) => {
       await scrollToSeam(page, i, raw);
       await picture(page, `seam-${ERA_IDS[i]}-${ERA_IDS[i + 1]}-${String(raw * 100).padStart(2, "0")}`);
     });
@@ -93,4 +95,22 @@ for (const [name, match, what] of cases) {
 test("the end of the page", async ({ page }) => {
   await scrollToY(page, 1e9);
   await picture(page, "end");
+});
+
+test.describe("under reduced motion", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openTimeline(page);
+  });
+
+  for (let i = 0; i < ERA_IDS.length - 1; i++) {
+    for (const raw of [0.45, 0.55]) {
+      test(`the seam from ${ERA_IDS[i]} to ${ERA_IDS[i + 1]}, ${Math.round(raw * 100)}% through`, async ({
+        page,
+      }) => {
+        await scrollToSeam(page, i, raw);
+        await picture(page, `reduced-seam-${ERA_IDS[i]}-${ERA_IDS[i + 1]}-${Math.round(raw * 100)}`);
+      });
+    }
+  }
 });
