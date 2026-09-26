@@ -1,0 +1,423 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"></head><body>
+<title>Gaslight to Deco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Josefin+Sans:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+@property --pc { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --pi { syntax: "<number>"; inherits: true; initial-value: 0; }
+
+:root {
+  color-scheme: dark;
+  --pc: 0; /* colour/shape progress through the seam, 0 = Industrial, 1 = Machine Age */
+  --pi: 0; /* text progress: steps at the midpoint so text never sits mid-grey */
+
+  /* Industrial · 1780–1900 (from the Panic & Wonder design system) */
+  --i-ground: #1f2420; --i-raised: #2a302b; --i-ink: #efe6d2; --i-muted: #b9ae98;
+  --i-rule: #454c45; --i-accent: #d4a24c; --i-soft: #3d3522;
+  --i-panic: #f07a5f; --i-concern: #e6b85c; --i-wonder: #8fc3d6; --i-hope: #9fcf8a;
+  /* Machine Age · 1900–1945 */
+  --m-ground: #f2ece0; --m-raised: #fffaf0; --m-ink: #14161a; --m-muted: #52565d;
+  --m-rule: #c9bfa9; --m-accent: #8a6212; --m-soft: #efe2c2;
+  --m-panic: #b0302a; --m-concern: #7a5a10; --m-wonder: #1d6b5c; --m-hope: #3f6a26;
+
+  --ground: color-mix(in oklab, var(--i-ground), var(--m-ground) calc(var(--pc) * 100%));
+  --raised: color-mix(in oklab, var(--i-raised), var(--m-raised) calc(var(--pc) * 100%));
+  --rule:   color-mix(in oklab, var(--i-rule),   var(--m-rule)   calc(var(--pc) * 100%));
+  --soft:   color-mix(in oklab, var(--i-soft),   var(--m-soft)   calc(var(--pc) * 100%));
+  --ink:    color-mix(in oklab, var(--i-ink),    var(--m-ink)    calc(var(--pi) * 100%));
+  --muted:  color-mix(in oklab, var(--i-muted),  var(--m-muted)  calc(var(--pi) * 100%));
+  --accent: color-mix(in oklab, var(--i-accent), var(--m-accent) calc(var(--pi) * 100%));
+  --panic:  color-mix(in oklab, var(--i-panic),  var(--m-panic)  calc(var(--pi) * 100%));
+  --concern:color-mix(in oklab, var(--i-concern),var(--m-concern)calc(var(--pi) * 100%));
+  --wonder: color-mix(in oklab, var(--i-wonder), var(--m-wonder) calc(var(--pi) * 100%));
+  --hope:   color-mix(in oklab, var(--i-hope),   var(--m-hope)   calc(var(--pi) * 100%));
+
+  --font-body: "Source Serif 4", Georgia, serif;
+  --font-label: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --font-industrial: "Abril Fatface", Didot, Georgia, serif;
+  --font-machine: "Josefin Sans", "Century Gothic", sans-serif;
+  --radius: calc(var(--pc) * 6px);
+  --border: calc(2px - var(--pc) * 1px);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font: 400 18px/28px var(--font-body);
+  padding-inline: 16px;
+}
+
+/* Era textures, crossfaded with --pc */
+.tex { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.tex-i {
+  background-image:
+    radial-gradient(circle, var(--i-rule) 1.6px, transparent 2.2px),
+    radial-gradient(circle, var(--i-rule) 1px, transparent 1.6px);
+  background-size: 32px 32px, 32px 32px;
+  background-position: 0 0, 16px 16px;
+  opacity: calc((1 - var(--pc)) * 0.55);
+}
+.tex-m {
+  background-image: repeating-linear-gradient(90deg, var(--m-rule) 0 1px, transparent 1px 56px);
+  opacity: calc(var(--pc) * 0.45);
+}
+main, header.intro, footer { position: relative; z-index: 1; }
+
+/* Intro */
+.intro { max-width: 1040px; margin: 0 auto; padding-block: 88px 40px; display: grid; gap: 16px; }
+.eyebrow, .tag, .verdict, .reaction, .hud, .year {
+  font-family: var(--font-label); font-weight: 500; font-size: 12px; line-height: 16px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.eyebrow { color: var(--muted); }
+.intro h1 { margin: 0; font: 400 clamp(44px, 7vw, 76px)/0.98 var(--font-industrial); text-wrap: balance; }
+.intro p { margin: 0; max-width: 62ch; color: var(--ink); }
+.intro .look { color: var(--muted); font-size: 15px; line-height: 22px; }
+
+/* HUD */
+.hud {
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 16px; z-index: 20;
+  display: grid; justify-items: end; gap: 2px;
+  padding: 8px 12px; color: var(--ink);
+  background: color-mix(in oklab, var(--i-raised), var(--m-raised) calc(var(--pi) * 100%));
+  border: var(--border) solid color-mix(in oklab, var(--i-rule), var(--m-rule) calc(var(--pi) * 100%));
+  border-radius: var(--radius);
+}
+.hud-year { font-size: 28px; line-height: 32px; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.hud-era { position: relative; height: 16px; width: 120px; }
+.hud-era span { position: absolute; right: 0; top: 0; white-space: nowrap; color: var(--muted); }
+.hud-era .i { font: 400 15px/16px var(--font-industrial); letter-spacing: 0; text-transform: none; opacity: calc(1 - var(--pc)); }
+.hud-era .m { font: 700 12px/16px var(--font-machine); letter-spacing: 0.1em; opacity: var(--pc); }
+.tick { animation: tick 160ms ease-out; }
+@keyframes tick { from { transform: translateY(-4px); opacity: 0.4; } }
+
+.card:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* Chapters */
+.chapter { max-width: 1040px; margin: 0 auto; padding-block: 64px 32px; display: grid; gap: 8px; }
+.chapter h2 { margin: 0; font-size: clamp(44px, 7vw, 64px); line-height: 1; color: var(--accent); text-wrap: balance; }
+.era-industrial .chapter h2 { font-family: var(--font-industrial); font-weight: 400; }
+.era-machine .chapter h2 { font-family: var(--font-machine); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.chapter p { margin: 0; max-width: 60ch; color: var(--muted); }
+
+/* Timeline: highlight cards alternate either side of the spine; compact rows straddle it */
+.track { position: relative; max-width: 1040px; margin: 0 auto; padding-block: 16px 48px; display: flex; flex-direction: column; }
+.track::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: var(--border); transform: translateX(-50%); background: var(--rule); }
+.card-item { position: relative; width: calc(50% - 40px); margin-block: 32px; }
+.card-item.left { align-self: flex-start; }
+.card-item.right { align-self: flex-end; }
+.card-item::after {
+  content: ""; position: absolute; top: 28px; width: 12px; height: 12px;
+  background: var(--accent); border-radius: calc(var(--pc) * 6px);
+  transform: rotate(calc(45deg - var(--pc) * 45deg));
+}
+.card-item.left::after { right: -46px; }
+.card-item.right::after { left: -46px; }
+
+.row { position: relative; }
+.row summary {
+  list-style: none; cursor: pointer;
+  display: grid; grid-template-columns: 1fr 40px 1fr; grid-template-areas: "meta mark title";
+  align-items: center; min-height: 40px; padding-block: 4px;
+}
+.row summary::-webkit-details-marker { display: none; }
+.row-meta {
+  grid-area: meta; justify-self: end; padding-right: 8px;
+  font: 500 12px/16px var(--font-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+.row-mark { grid-area: mark; justify-self: center; display: grid; place-items: center; width: 28px; height: 28px; background: var(--ground); border-radius: 50%; }
+.row-mark svg { width: 16px; height: 16px; }
+.row-title { grid-area: title; padding-left: 8px; display: inline-flex; align-items: baseline; gap: 8px; color: var(--ink); text-wrap: balance; }
+.era-industrial .row-title { font: 400 20px/24px var(--font-industrial); }
+.era-machine .row-title { font: 700 15px/20px var(--font-machine); text-transform: uppercase; letter-spacing: 0.06em; }
+.row-plus::before { content: "+"; font: 500 14px/1 var(--font-label); color: var(--muted); }
+.row[open] .row-plus::before { content: "\2212"; }
+.row summary:hover .row-title, .row summary:focus-visible .row-title { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+.row summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.row-more {
+  margin: 4px 0 12px calc(50% + 28px); max-width: 440px; padding: 16px;
+  display: grid; gap: 12px; font-size: 16px; line-height: 24px;
+  background: var(--raised); border: var(--border) solid var(--rule); border-radius: var(--radius);
+}
+.row-more p { margin: 0; }
+
+.card {
+  display: grid; gap: 16px; padding: 24px;
+  background: var(--raised); color: var(--ink);
+  border: var(--border) solid var(--rule); border-radius: var(--radius);
+}
+.card-head { display: flex; align-items: center; gap: 12px; }
+.reaction { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); }
+.reaction svg { width: 20px; height: 20px; flex: none; }
+.r-panic { fill: var(--panic); } .r-concern { fill: var(--concern); } .r-wonder { fill: var(--wonder); } .r-hope { fill: var(--hope); }
+.year { font-size: 14px; line-height: 20px; letter-spacing: 0; text-transform: none; color: var(--muted); }
+.card h3 { margin: 0; font-size: 28px; line-height: 32px; text-wrap: balance; }
+.era-industrial .card h3 { font-family: var(--font-industrial); font-weight: 400; }
+.era-machine .card h3 { font-family: var(--font-machine); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 24px; line-height: 30px; }
+.card p { margin: 0; }
+.card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tag { color: var(--muted); }
+.tag + .tag::before { content: "· "; }
+.verdict { margin-left: auto; padding: 4px 12px; background: var(--soft); color: var(--ink); border: 1px solid var(--accent); border-radius: 999px; }
+
+/* Card entrances, era-specific, scroll-linked where supported */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .era-industrial .card { animation: press linear both; animation-timeline: view(); animation-range: entry 0% cover 28%; }
+    .era-machine .card { animation: wipe linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }
+    .era-machine .card-item.right .card { animation-name: wipe-r; }
+  }
+}
+@keyframes press { from { transform: translateY(32px) scale(0.97); opacity: 0.25; filter: blur(1.5px); } }
+@keyframes wipe { from { clip-path: inset(0 100% 0 0 round var(--radius)); transform: translateX(-24px); } }
+@keyframes wipe-r { from { clip-path: inset(0 0 0 100% round var(--radius)); transform: translateX(24px); } }
+
+/* The seam */
+.seam { position: relative; height: 170vh; }
+.seam-stage { position: sticky; top: 0; height: 100vh; display: grid; place-items: center; overflow: hidden; }
+.glow {
+  position: absolute; width: 90vmin; height: 90vmin; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklab, var(--i-accent) 38%, transparent), transparent 62%);
+  opacity: calc(1 - var(--pc)); transform: scale(calc(1 - var(--pc) * 0.4));
+}
+.rays {
+  position: absolute; width: 150vmax; height: 150vmax;
+  background: repeating-conic-gradient(from 0deg, color-mix(in oklab, var(--m-accent) 22%, transparent) 0deg 4deg, transparent 4deg 12deg);
+  -webkit-mask: radial-gradient(circle, #000 8%, transparent 52%);
+          mask: radial-gradient(circle, #000 8%, transparent 52%);
+  opacity: var(--pc); transform: scale(calc(0.5 + var(--pc) * 0.6)) rotate(calc(var(--pc) * 12deg));
+}
+.seam-copy { position: relative; display: grid; justify-items: center; gap: 12px; text-align: center; padding-inline: 16px; }
+.big-year { position: relative; font-size: clamp(96px, 22vw, 220px); line-height: 1; height: 1em; width: 3.2em; }
+.big-year span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--accent); }
+.big-year .i { font-family: var(--font-industrial); opacity: calc(1 - var(--pc)); }
+.big-year .m { font-family: var(--font-machine); font-weight: 400; letter-spacing: 0.04em; opacity: var(--pc); }
+.seam-copy p { margin: 0; max-width: 40ch; color: var(--muted); opacity: max(0, calc(1 - var(--pc) * 2.5), calc(var(--pc) * 2.5 - 1.5)); }
+
+
+footer { max-width: 1040px; margin: 0 auto; padding-block: 48px 120px; color: var(--muted); font-size: 15px; line-height: 22px; }
+footer p { margin: 0; max-width: 62ch; }
+
+@media (max-width: 720px) {
+  .track::before { left: 14px; }
+  .card-item, .card-item.left, .card-item.right { width: auto; align-self: stretch; margin-left: 40px; margin-block: 24px; }
+  .card-item.left::after, .card-item.right::after { left: -32px; right: auto; }
+  .row summary { grid-template-columns: 28px 1fr; grid-template-areas: "mark title" ". meta"; column-gap: 12px; row-gap: 2px; padding-block: 8px; }
+  .row-meta { justify-self: start; padding: 0 0 0 8px; }
+  .row-more { margin-left: 48px; }
+  .intro { padding-block: 104px 32px; }
+  .verdict { margin-left: 0; }
+  .hud { padding: 6px 10px; }
+  .hud-year { font-size: 20px; line-height: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rays { transform: none; }
+  .tick { animation: none; }
+}
+</style>
+
+<div class="tex tex-i" aria-hidden="true"></div>
+<div class="tex tex-m" aria-hidden="true"></div>
+
+<div class="hud" aria-live="off">
+  <div class="hud-year" id="hudYear">1844</div>
+  <div class="hud-era"><span class="i">Industrial</span><span class="m">Machine Age</span></div>
+</div>
+
+<header class="intro">
+  <div class="eyebrow">Panic &amp; Wonder · seam prototype</div>
+  <h1>Gaslight to Deco</h1>
+  <p>This prototype tests one era change: Industrial into Machine Age, at 1900. Scroll down. Colours, corners, borders and texture blend continuously with your scroll position. The big stories get full cards; everything else is a one-line row on the spine that opens when you tap it.</p>
+  <p class="look">Nothing readable sits in the middle of the blend. The seam is tall enough that no cards are on screen while the page is mid-grey, the caption fades out through the middle, and text colour and the year counter switch over at the midpoint.</p>
+</header>
+
+<main>
+  <section class="era-industrial" aria-labelledby="h-ind">
+    <div class="chapter">
+      <div class="eyebrow">1780–1900</div>
+      <h2 id="h-ind">Industrial</h2>
+      <p>Steam, rail, wire and the penny press. News moves faster than ever, and so does alarm.</p>
+    </div>
+    <div class="track">
+      <details class="item row" data-year="1783">
+        <summary><span class="row-meta">Panic · 1783</span><span class="row-mark"><svg class="r-panic" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.2 5.6L18 3.4l-2.6 5.2L20 11l-5.8 1.3 1.6 6.1-5.8-3.3L4.2 18.4l1.6-6.1L0 11l4.6-2.4L2 3.4l5.8 2.2z"/></svg></span><span class="row-title">Villagers attack a balloon<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>When an unmanned hydrogen balloon came down near Gonesse, frightened villagers attacked it with pitchforks.</p><div class="card-foot"><span class="tag">France</span><span class="tag">Flight</span><span class="verdict">Overblown</span></div></div>
+      </details>
+      <details class="item row" data-year="1783">
+        <summary><span class="row-meta">Wonder · 1783</span><span class="row-mark"><svg class="r-wonder" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z"/></svg></span><span class="row-title">The first people to fly<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>Two men drifted over Paris in a Montgolfier hot-air balloon, watched by huge crowds.</p><div class="card-foot"><span class="tag">France</span><span class="tag">Flight</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <details class="item row" data-year="1802">
+        <summary><span class="row-meta">Panic · 1802</span><span class="row-mark"><svg class="r-panic" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.2 5.6L18 3.4l-2.6 5.2L20 11l-5.8 1.3 1.6 6.1-5.8-3.3L4.2 18.4l1.6-6.1L0 11l4.6-2.4L2 3.4l5.8 2.2z"/></svg></span><span class="row-title">Sprouting cows<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>A popular cartoon showed people vaccinated with cowpox growing cows from their bodies. Vaccination went on to wipe out smallpox.</p><div class="card-foot"><span class="tag">Britain</span><span class="tag">Medicine</span><span class="verdict">Overblown</span></div></div>
+      </details>
+      <details class="item row" data-year="1811">
+        <summary><span class="row-meta">Credible concern · 1811</span><span class="row-mark"><svg class="r-concern" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5L19.5 18.5H0.5z"/></svg></span><span class="row-title">The Luddites<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>Textile workers smashed the new machines they said were destroying skilled jobs and wages.</p><div class="card-foot"><span class="tag">Britain</span><span class="tag">Automation</span><span class="verdict">Mixed</span></div></div>
+      </details>
+      <details class="item row" data-year="1816">
+        <summary><span class="row-meta">Credible concern · 1816</span><span class="row-mark"><svg class="r-concern" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5L19.5 18.5H0.5z"/></svg></span><span class="row-title">The year without a summer<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>After a volcanic eruption in Indonesia, summer frosts ruined harvests across Europe and North America.</p><div class="card-foot"><span class="tag">Global</span><span class="tag">Climate</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <details class="item row" data-year="1832">
+        <summary><span class="row-meta">Credible concern · 1832</span><span class="row-mark"><svg class="r-concern" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5L19.5 18.5H0.5z"/></svg></span><span class="row-title">Cholera arrives<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>Cholera reached Britain and killed tens of thousands. Many blamed foul air rather than dirty water.</p><div class="card-foot"><span class="tag">Britain</span><span class="tag">Public health</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <details class="item row" data-year="1835">
+        <summary><span class="row-meta">Wonder · 1835</span><span class="row-mark"><svg class="r-wonder" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z"/></svg></span><span class="row-title">The Great Moon Hoax<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>The New York Sun reported bat-winged people living on the Moon. Sales soared before the story was exposed.</p><div class="card-foot"><span class="tag">North America</span><span class="tag">Media</span><span class="verdict">Overblown</span></div></div>
+      </details>
+      <div class="item card-item left" data-year="1844"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-panic" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.2 5.6L18 3.4l-2.6 5.2L20 11l-5.8 1.3 1.6 6.1-5.8-3.3L4.2 18.4l1.6-6.1L0 11l4.6-2.4L2 3.4l5.8 2.2z"/></svg>Panic</span><span class="year">1844</span></div>
+        <h3>The Great Disappointment</h3>
+        <p>Followers of the preacher William Miller expected the world to end on 22 October 1844. Many sold farms and gave away their goods. The day passed quietly.</p>
+        <div class="card-foot"><span class="tag">North America</span><span class="tag">Prophecy</span><span class="verdict">Overblown</span></div>
+      </article></div>
+      <div class="item card-item right" data-year="1845"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-hope" viewBox="0 0 20 20" aria-hidden="true"><path d="M1 16a9 9 0 0 1 18 0zM0 17.5h20V20H0z"/></svg>Optimism</span><span class="year">1845</span></div>
+        <h3>Railway mania</h3>
+        <p>British investors piled into hundreds of new railway schemes. Share prices collapsed in 1847, but much of the network got built.</p>
+        <div class="card-foot"><span class="tag">Britain</span><span class="tag">Speculation</span><span class="verdict">Mixed</span></div>
+      </article></div>
+      <div class="item card-item left" data-year="1858"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-concern" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5L19.5 18.5H0.5z"/></svg>Credible concern</span><span class="year">1858</span></div>
+        <h3>The Great Stink</h3>
+        <p>A hot summer made the sewage-choked Thames unbearable, even inside Parliament. MPs approved Joseph Bazalgette&#x27;s sewer system that same summer.</p>
+        <div class="card-foot"><span class="tag">Britain</span><span class="tag">Public health</span><span class="verdict">Vindicated</span></div>
+      </article></div>
+      <div class="item card-item right" data-year="1858"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-wonder" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z"/></svg>Wonder</span><span class="year">1858</span></div>
+        <h3>A cable under the Atlantic</h3>
+        <p>The first transatlantic telegraph messages set off celebrations, and fireworks in New York set City Hall&#x27;s roof alight. The cable failed within a month.</p>
+        <div class="card-foot"><span class="tag">Transatlantic</span><span class="tag">Communication</span><span class="verdict">Vindicated</span></div>
+      </article></div>
+      <details class="item row" data-year="1859">
+        <summary><span class="row-meta">Wonder · 1859</span><span class="row-mark"><svg class="r-wonder" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z"/></svg></span><span class="row-title">The sky catches fire<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>A huge solar storm lit auroras far into the tropics, and telegraph lines sparked.</p><div class="card-foot"><span class="tag">Global</span><span class="tag">Space</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <details class="item row" data-year="1878">
+        <summary><span class="row-meta">Wonder · 1878</span><span class="row-mark"><svg class="r-wonder" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z"/></svg></span><span class="row-title">A voice from a machine<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>At a demonstration of Edison&#x27;s phonograph in Paris, one academician accused the presenter of ventriloquism.</p><div class="card-foot"><span class="tag">Europe</span><span class="tag">Sound</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <div class="item card-item left" data-year="1896"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-concern" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5L19.5 18.5H0.5z"/></svg>Credible concern</span><span class="year">1896</span></div>
+        <h3>The man with the red flag</h3>
+        <p>Britain&#x27;s 1865 law made road locomotives follow a person on foot carrying a red flag. When it was relaxed in 1896, motorists celebrated with a run to Brighton.</p>
+        <div class="card-foot"><span class="tag">Britain</span><span class="tag">Transport</span><span class="verdict">Overblown</span></div>
+      </article></div>
+    </div>
+  </section>
+
+  <section class="seam" id="seam" data-year="1900" aria-label="1900: the change of era">
+    <div class="seam-stage">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="rays" aria-hidden="true"></div>
+      <div class="seam-copy">
+        <div class="big-year" aria-hidden="true"><span class="i">1900</span><span class="m">1900</span></div>
+        <p>Electric light, the motor car and, soon, the aeroplane.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="era-machine" aria-labelledby="h-mach">
+    <div class="chapter">
+      <div class="eyebrow">1900–1945</div>
+      <h2 id="h-mach">Machine Age</h2>
+      <p>Radio, flight and mass production. The future becomes something people can buy a ticket to see.</p>
+    </div>
+    <div class="track">
+      <div class="item card-item left" data-year="1910"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-panic" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.2 5.6L18 3.4l-2.6 5.2L20 11l-5.8 1.3 1.6 6.1-5.8-3.3L4.2 18.4l1.6-6.1L0 11l4.6-2.4L2 3.4l5.8 2.2z"/></svg>Panic</span><span class="year">1910</span></div>
+        <h3>Comet pills</h3>
+        <p>Astronomers announced that Earth would pass through the tail of Halley&#x27;s Comet, which contained cyanogen gas. Some people bought &quot;comet pills&quot; and sealed their windows.</p>
+        <div class="card-foot"><span class="tag">Global</span><span class="tag">Space</span><span class="verdict">Overblown</span></div>
+      </article></div>
+      <details class="item row" data-year="1918">
+        <summary><span class="row-meta">Credible concern · 1918</span><span class="row-mark"><svg class="r-concern" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5L19.5 18.5H0.5z"/></svg></span><span class="row-title">A new influenza<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>A flu pandemic spread worldwide and killed tens of millions. Masks and closures met resistance.</p><div class="card-foot"><span class="tag">Global</span><span class="tag">Public health</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <details class="item row" data-year="1922">
+        <summary><span class="row-meta">Wonder · 1922</span><span class="row-mark"><svg class="r-wonder" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z"/></svg></span><span class="row-title">The wireless arrives<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>The BBC began daily radio broadcasts. Within a few years, millions of homes had a licence.</p><div class="card-foot"><span class="tag">Britain</span><span class="tag">Media</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <div class="item card-item right" data-year="1927"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-wonder" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z"/></svg>Wonder</span><span class="year">1927</span></div>
+        <h3>Lindbergh lands in Paris</h3>
+        <p>After more than 33 hours alone over the Atlantic, Charles Lindbergh landed at Le Bourget to a crowd of tens of thousands.</p>
+        <div class="card-foot"><span class="tag">Europe</span><span class="tag">Flight</span><span class="verdict">Vindicated</span></div>
+      </article></div>
+      <details class="item row" data-year="1927">
+        <summary><span class="row-meta">Wonder · 1927</span><span class="row-mark"><svg class="r-wonder" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z"/></svg></span><span class="row-title">The talkies<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>Audiences cheered The Jazz Singer, the first feature film with synchronised dialogue and song.</p><div class="card-foot"><span class="tag">North America</span><span class="tag">Film</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <details class="item row" data-year="1929">
+        <summary><span class="row-meta">Panic · 1929</span><span class="row-mark"><svg class="r-panic" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.2 5.6L18 3.4l-2.6 5.2L20 11l-5.8 1.3 1.6 6.1-5.8-3.3L4.2 18.4l1.6-6.1L0 11l4.6-2.4L2 3.4l5.8 2.2z"/></svg></span><span class="row-title">Black Tuesday<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>Panic selling crashed the New York stock market over a few days in October.</p><div class="card-foot"><span class="tag">North America</span><span class="tag">Finance</span><span class="verdict">Mixed</span></div></div>
+      </details>
+      <details class="item row" data-year="1936">
+        <summary><span class="row-meta">Optimism · 1936</span><span class="row-mark"><svg class="r-hope" viewBox="0 0 20 20" aria-hidden="true"><path d="M1 16a9 9 0 0 1 18 0zM0 17.5h20V20H0z"/></svg></span><span class="row-title">Pictures by wireless<span class="row-plus" aria-hidden="true"></span></span></summary>
+        <div class="row-more"><p>The BBC opened a regular high-definition television service to a small audience in London.</p><div class="card-foot"><span class="tag">Britain</span><span class="tag">Media</span><span class="verdict">Vindicated</span></div></div>
+      </details>
+      <div class="item card-item left" data-year="1938"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-panic" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0l2.2 5.6L18 3.4l-2.6 5.2L20 11l-5.8 1.3 1.6 6.1-5.8-3.3L4.2 18.4l1.6-6.1L0 11l4.6-2.4L2 3.4l5.8 2.2z"/></svg>Panic</span><span class="year">1938</span></div>
+        <h3>The War of the Worlds</h3>
+        <p>Newspapers reported that Orson Welles&#x27;s radio drama about a Martian invasion caused mass panic. Later research suggests few listeners were fooled.</p>
+        <div class="card-foot"><span class="tag">North America</span><span class="tag">Media</span><span class="verdict">Overblown</span></div>
+      </article></div>
+      <div class="item card-item right" data-year="1939"><article class="card" tabindex="0">
+        <div class="card-head"><span class="reaction"><svg class="r-hope" viewBox="0 0 20 20" aria-hidden="true"><path d="M1 16a9 9 0 0 1 18 0zM0 17.5h20V20H0z"/></svg>Optimism</span><span class="year">1939</span></div>
+        <h3>The World of Tomorrow</h3>
+        <p>New York&#x27;s World&#x27;s Fair showed a future of motorways and gleaming cities in GM&#x27;s Futurama. Crowds queued for hours as war began in Europe.</p>
+        <div class="card-foot"><span class="tag">North America</span><span class="tag">Technology</span><span class="verdict">Mixed</span></div>
+      </article></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Prototype for the Panic &amp; Wonder timeline. Colours, type and reaction marks come from its design system. Card text is short placeholder copy for the test.</p>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var seam = document.getElementById("seam");
+  var hudYear = document.getElementById("hudYear");
+  var marks = Array.prototype.slice.call(document.querySelectorAll("[data-year]"));
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var lastYear = null, queued = false;
+
+  function clamp(v) { return Math.max(0, Math.min(1, v)); }
+  function smooth(t) { return t * t * (3 - 2 * t); }
+
+  function update() {
+    queued = false;
+    var r = seam.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var raw = clamp((vh * 0.5 - r.top) / r.height);
+    var side = raw >= 0.5;
+    var pc = reduce.matches ? (side ? 1 : 0) : smooth(clamp((raw - 0.3) / 0.4));
+    root.style.setProperty("--pc", pc.toFixed(4));
+    root.style.setProperty("--pi", side ? "1" : "0");
+
+
+    var year = marks[0].getAttribute("data-year");
+    for (var i = 0; i < marks.length; i++) {
+      if (marks[i].getBoundingClientRect().top < vh * 0.55) year = marks[i].getAttribute("data-year");
+    }
+    if (year !== lastYear) {
+      hudYear.textContent = year;
+      hudYear.classList.remove("tick"); void hudYear.offsetWidth; hudYear.classList.add("tick");
+      lastYear = year;
+    }
+  }
+  function queue() { if (!queued) { queued = true; requestAnimationFrame(update); } }
+
+
+  window.addEventListener("scroll", queue, { passive: true });
+  window.addEventListener("resize", queue);
+  update();
+})();
+</script>
+</body></html>

@@ -1,0 +1,12 @@
+<!-- @dsCard group="Timeline" height=96 -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>body{margin:0;padding:24px;background:var(--ground-raised);} #root{display:flex;flex-wrap:wrap;gap:24px;}</style>
+</head><body>
+<div id="root"></div>
+<script>
+var P = window.PanicWonder;
+document.getElementById("root").innerHTML = ["panic","concern","wonder","hope"].map(P.ReactionMark).join("");
+</script>
+</body></html>

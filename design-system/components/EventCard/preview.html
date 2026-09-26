@@ -1,0 +1,15 @@
+<!-- @dsCard group="Timeline" height=560 subtitle="Switch the theme to see one card in every era" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Grenze+Gotisch:wght@600&family=EB+Garamond:wght@500&family=Abril+Fatface&family=Josefin+Sans:wght@700&family=Archivo:wght@800&family=Fraunces:opsz,wght@72,700&family=Space+Mono:wght@700&family=Source+Serif+4:opsz,wght@8..60,400&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>body{margin:0;padding:24px;background:var(--ground);display:grid;gap:24px;}</style>
+</head><body>
+<div id="root" style="display:grid;gap:24px"></div>
+<script>
+var P = window.PanicWonder;
+document.getElementById("root").innerHTML =
+  P.EventCard({ year: 1524, title: "The flood that never came", body: "Astrologers read a great conjunction in Pisces as a second Deluge. Some Londoners fled to higher ground; a few built boats.", reaction: "panic", tags: ["Europe", "Prophecy"], verdict: "overblown" }) +
+  P.EventCard({ year: 1969, title: "One small step", body: "An estimated 600 million people watched the Moon landing live, the largest shared broadcast yet.", reaction: "wonder", tags: ["Global", "Space"], verdict: "vindicated" });
+</script>
+</body></html>

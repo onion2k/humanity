@@ -1,0 +1,94 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Panic &amp; Wonder</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Grenze+Gotisch:wght@600&family=EB+Garamond:wght@500&family=Abril+Fatface&family=Josefin+Sans:wght@700&family=Archivo:wght@800&family=Fraunces:opsz,wght@72,700&family=Space+Mono:wght@700&family=Source+Serif+4:opsz,wght@8..60,400&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--ground); color:var(--ink); font-family:var(--font-body); overflow:hidden; }
+  .cover { position:relative; height:288px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:288px; overflow:hidden; }
+  .art svg { display:block; width:480px; height:288px; }
+  .accent { fill:var(--accent); }
+  .deep { fill:var(--ink); }
+  .wonder { fill:var(--react-wonder); }
+  .panic { fill:var(--react-panic); }
+  .blk { rx:var(--era-radius); }
+  .dot { fill:var(--accent); }
+  .cut { fill:var(--ground); }
+  .words { position:absolute; left:var(--space-6); bottom:var(--space-6); max-width:440px; }
+  .name { margin:0; font-family:var(--era-display); font-size:76px; line-height:.95; font-weight:600; color:var(--ink); }
+  .tag { margin:var(--space-2) 0 0 2px; font-size:14px; line-height:20px; color:var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blocks      accent 144x232 bled off the top (the era's identity, largest) · ink 208x176 bled off the right · react-wonder 96x120 · react-panic 48x32 — about 30% of 960x288; every fill re-tints per era theme
+  arrangement one tall accent slab with satellites, bottoms on one line (y=216), space-4 gutters
+  pattern     a literal motif, the timeline itself: event dots whose gaps shrink toward the present, on the ground in accent and cut out of the blocks in ground
+  scales      sides in space-4/space-6 multiples; gutters space-4; dot r = space-1; corners --era-radius (radius-none … radius-lg per era)
+-->
+<rect class="accent blk" x="16" y="-16" width="144" height="232"/>
+<rect class="panic blk" x="176" y="48" width="48" height="32"/>
+<rect class="wonder blk" x="176" y="96" width="96" height="120"/>
+<rect class="deep blk" x="288" y="40" width="208" height="176"/>
+<circle class="cut" cx="72" cy="176" r="4"/>
+<circle class="cut" cx="117" cy="176" r="4"/>
+<circle class="cut" cx="153" cy="176" r="4"/>
+<circle class="cut" cx="181" cy="176" r="4"/>
+<circle class="cut" cx="204" cy="176" r="4"/>
+<circle class="cut" cx="223" cy="176" r="4"/>
+<circle class="cut" cx="237" cy="176" r="4"/>
+<circle class="cut" cx="251" cy="176" r="4"/>
+<circle class="cut" cx="265" cy="176" r="4"/>
+<circle class="cut" cx="293" cy="176" r="4"/>
+<circle class="cut" cx="307" cy="176" r="4"/>
+<circle class="cut" cx="321" cy="176" r="4"/>
+<circle class="cut" cx="335" cy="176" r="4"/>
+<circle class="cut" cx="349" cy="176" r="4"/>
+<circle class="cut" cx="363" cy="176" r="4"/>
+<circle class="cut" cx="377" cy="176" r="4"/>
+<circle class="cut" cx="391" cy="176" r="4"/>
+<circle class="cut" cx="405" cy="176" r="4"/>
+<circle class="cut" cx="419" cy="176" r="4"/>
+<circle class="cut" cx="433" cy="176" r="4"/>
+<circle class="cut" cx="447" cy="176" r="4"/>
+<circle class="cut" cx="461" cy="176" r="4"/>
+<circle class="dot" cx="16" cy="252" r="4"/>
+<circle class="dot" cx="72" cy="252" r="4"/>
+<circle class="dot" cx="117" cy="252" r="4"/>
+<circle class="dot" cx="153" cy="252" r="4"/>
+<circle class="dot" cx="181" cy="252" r="4"/>
+<circle class="dot" cx="204" cy="252" r="4"/>
+<circle class="dot" cx="223" cy="252" r="4"/>
+<circle class="dot" cx="237" cy="252" r="4"/>
+<circle class="dot" cx="251" cy="252" r="4"/>
+<circle class="dot" cx="265" cy="252" r="4"/>
+<circle class="dot" cx="279" cy="252" r="4"/>
+<circle class="dot" cx="293" cy="252" r="4"/>
+<circle class="dot" cx="307" cy="252" r="4"/>
+<circle class="dot" cx="321" cy="252" r="4"/>
+<circle class="dot" cx="335" cy="252" r="4"/>
+<circle class="dot" cx="349" cy="252" r="4"/>
+<circle class="dot" cx="363" cy="252" r="4"/>
+<circle class="dot" cx="377" cy="252" r="4"/>
+<circle class="dot" cx="391" cy="252" r="4"/>
+<circle class="dot" cx="405" cy="252" r="4"/>
+<circle class="dot" cx="419" cy="252" r="4"/>
+<circle class="dot" cx="433" cy="252" r="4"/>
+<circle class="dot" cx="447" cy="252" r="4"/>
+<circle class="dot" cx="461" cy="252" r="4"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">Panic &amp;<br>Wonder</h1>
+<p class="tag">How people met the new and the unknown, era by era.</p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,324 @@
+[
+  {
+    "id": "1783-villagers-attack-a-balloon",
+    "year": 1783,
+    "title": "Villagers attack a balloon",
+    "body": "When an unmanned hydrogen balloon came down near Gonesse, frightened villagers attacked it with pitchforks.",
+    "reaction": "panic",
+    "region": "France",
+    "themes": [
+      "Flight"
+    ],
+    "verdict": "overblown",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1783-the-first-people-to-fly",
+    "year": 1783,
+    "title": "The first people to fly",
+    "body": "Two men drifted over Paris in a Montgolfier hot-air balloon, watched by huge crowds.",
+    "reaction": "wonder",
+    "region": "France",
+    "themes": [
+      "Flight"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1802-sprouting-cows",
+    "year": 1802,
+    "title": "Sprouting cows",
+    "body": "A popular cartoon showed people vaccinated with cowpox growing cows from their bodies. Vaccination went on to wipe out smallpox.",
+    "reaction": "panic",
+    "region": "Britain",
+    "themes": [
+      "Medicine"
+    ],
+    "verdict": "overblown",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1811-the-luddites",
+    "year": 1811,
+    "title": "The Luddites",
+    "body": "Textile workers smashed the new machines they said were destroying skilled jobs and wages.",
+    "reaction": "concern",
+    "region": "Britain",
+    "themes": [
+      "Automation"
+    ],
+    "verdict": "mixed",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1816-the-year-without-a-summer",
+    "year": 1816,
+    "title": "The year without a summer",
+    "body": "After a volcanic eruption in Indonesia, summer frosts ruined harvests across Europe and North America.",
+    "reaction": "concern",
+    "region": "Global",
+    "themes": [
+      "Climate"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1832-cholera-arrives",
+    "year": 1832,
+    "title": "Cholera arrives",
+    "body": "Cholera reached Britain and killed tens of thousands. Many blamed foul air rather than dirty water.",
+    "reaction": "concern",
+    "region": "Britain",
+    "themes": [
+      "Public health"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1835-the-great-moon-hoax",
+    "year": 1835,
+    "title": "The Great Moon Hoax",
+    "body": "The New York Sun reported bat-winged people living on the Moon. Sales soared before the story was exposed.",
+    "reaction": "wonder",
+    "region": "North America",
+    "themes": [
+      "Media"
+    ],
+    "verdict": "overblown",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1844-the-great-disappointment",
+    "year": 1844,
+    "title": "The Great Disappointment",
+    "body": "Followers of the preacher William Miller expected the world to end on 22 October 1844. Many sold farms and gave away their goods. The day passed quietly.",
+    "reaction": "panic",
+    "region": "North America",
+    "themes": [
+      "Prophecy"
+    ],
+    "verdict": "overblown",
+    "featured": true,
+    "sources": []
+  },
+  {
+    "id": "1845-railway-mania",
+    "year": 1845,
+    "title": "Railway mania",
+    "body": "British investors piled into hundreds of new railway schemes. Share prices collapsed in 1847, but much of the network got built.",
+    "reaction": "hope",
+    "region": "Britain",
+    "themes": [
+      "Speculation"
+    ],
+    "verdict": "mixed",
+    "featured": true,
+    "sources": []
+  },
+  {
+    "id": "1858-the-great-stink",
+    "year": 1858,
+    "title": "The Great Stink",
+    "body": "A hot summer made the sewage-choked Thames unbearable, even inside Parliament. MPs approved Joseph Bazalgette's sewer system that same summer.",
+    "reaction": "concern",
+    "region": "Britain",
+    "themes": [
+      "Public health"
+    ],
+    "verdict": "vindicated",
+    "featured": true,
+    "sources": []
+  },
+  {
+    "id": "1858-a-cable-under-the-atlantic",
+    "year": 1858,
+    "title": "A cable under the Atlantic",
+    "body": "The first transatlantic telegraph messages set off celebrations, and fireworks in New York set City Hall's roof alight. The cable failed within a month.",
+    "reaction": "wonder",
+    "region": "Transatlantic",
+    "themes": [
+      "Communication"
+    ],
+    "verdict": "vindicated",
+    "featured": true,
+    "sources": []
+  },
+  {
+    "id": "1859-the-sky-catches-fire",
+    "year": 1859,
+    "title": "The sky catches fire",
+    "body": "A huge solar storm lit auroras far into the tropics, and telegraph lines sparked.",
+    "reaction": "wonder",
+    "region": "Global",
+    "themes": [
+      "Space"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1878-a-voice-from-a-machine",
+    "year": 1878,
+    "title": "A voice from a machine",
+    "body": "At a demonstration of Edison's phonograph in Paris, one academician accused the presenter of ventriloquism.",
+    "reaction": "wonder",
+    "region": "Europe",
+    "themes": [
+      "Sound"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1896-the-man-with-the-red-flag",
+    "year": 1896,
+    "title": "The man with the red flag",
+    "body": "Britain's 1865 law made road locomotives follow a person on foot carrying a red flag. When it was relaxed in 1896, motorists celebrated with a run to Brighton.",
+    "reaction": "concern",
+    "region": "Britain",
+    "themes": [
+      "Transport"
+    ],
+    "verdict": "overblown",
+    "featured": true,
+    "sources": []
+  },
+  {
+    "id": "1910-comet-pills",
+    "year": 1910,
+    "title": "Comet pills",
+    "body": "Astronomers announced that Earth would pass through the tail of Halley's Comet, which contained cyanogen gas. Some people bought \"comet pills\" and sealed their windows.",
+    "reaction": "panic",
+    "region": "Global",
+    "themes": [
+      "Space"
+    ],
+    "verdict": "overblown",
+    "featured": true,
+    "sources": []
+  },
+  {
+    "id": "1918-a-new-influenza",
+    "year": 1918,
+    "title": "A new influenza",
+    "body": "A flu pandemic spread worldwide and killed tens of millions. Masks and closures met resistance.",
+    "reaction": "concern",
+    "region": "Global",
+    "themes": [
+      "Public health"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1922-the-wireless-arrives",
+    "year": 1922,
+    "title": "The wireless arrives",
+    "body": "The BBC began daily radio broadcasts. Within a few years, millions of homes had a licence.",
+    "reaction": "wonder",
+    "region": "Britain",
+    "themes": [
+      "Media"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1927-lindbergh-lands-in-paris",
+    "year": 1927,
+    "title": "Lindbergh lands in Paris",
+    "body": "After more than 33 hours alone over the Atlantic, Charles Lindbergh landed at Le Bourget to a crowd of tens of thousands.",
+    "reaction": "wonder",
+    "region": "Europe",
+    "themes": [
+      "Flight"
+    ],
+    "verdict": "vindicated",
+    "featured": true,
+    "sources": []
+  },
+  {
+    "id": "1927-the-talkies",
+    "year": 1927,
+    "title": "The talkies",
+    "body": "Audiences cheered The Jazz Singer, the first feature film with synchronised dialogue and song.",
+    "reaction": "wonder",
+    "region": "North America",
+    "themes": [
+      "Film"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1929-black-tuesday",
+    "year": 1929,
+    "title": "Black Tuesday",
+    "body": "Panic selling crashed the New York stock market over a few days in October.",
+    "reaction": "panic",
+    "region": "North America",
+    "themes": [
+      "Finance"
+    ],
+    "verdict": "mixed",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1936-pictures-by-wireless",
+    "year": 1936,
+    "title": "Pictures by wireless",
+    "body": "The BBC opened a regular high-definition television service to a small audience in London.",
+    "reaction": "hope",
+    "region": "Britain",
+    "themes": [
+      "Media"
+    ],
+    "verdict": "vindicated",
+    "featured": false,
+    "sources": []
+  },
+  {
+    "id": "1938-the-war-of-the-worlds",
+    "year": 1938,
+    "title": "The War of the Worlds",
+    "body": "Newspapers reported that Orson Welles's radio drama about a Martian invasion caused mass panic. Later research suggests few listeners were fooled.",
+    "reaction": "panic",
+    "region": "North America",
+    "themes": [
+      "Media"
+    ],
+    "verdict": "overblown",
+    "featured": true,
+    "sources": []
+  },
+  {
+    "id": "1939-the-world-of-tomorrow",
+    "year": 1939,
+    "title": "The World of Tomorrow",
+    "body": "New York's World's Fair showed a future of motorways and gleaming cities in GM's Futurama. Crowds queued for hours as war began in Europe.",
+    "reaction": "hope",
+    "region": "North America",
+    "themes": [
+      "Technology"
+    ],
+    "verdict": "mixed",
+    "featured": true,
+    "sources": []
+  }
+]

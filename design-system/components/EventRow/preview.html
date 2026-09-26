@@ -1,0 +1,18 @@
+<!-- @dsCard group="Timeline" height=300 subtitle="The second row is open" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Grenze+Gotisch:wght@600&family=EB+Garamond:wght@500&family=Abril+Fatface&family=Josefin+Sans:wght@700&family=Archivo:wght@800&family=Fraunces:opsz,wght@72,700&family=Space+Mono:wght@700&family=Source+Serif+4:opsz,wght@8..60,400&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>body{margin:0;padding:24px 16px;background:var(--ground);} #root{position:relative;} #root::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--rule);}</style>
+</head><body>
+<div id="root"></div>
+<script>
+var P = window.PanicWonder;
+var root = document.getElementById("root");
+root.innerHTML = [
+  { year: 1783, title: "Villagers attack a balloon", body: "When an unmanned hydrogen balloon came down near Gonesse, frightened villagers attacked it with pitchforks.", reaction: "panic", tags: ["France", "Flight"], verdict: "overblown" },
+  { year: 1802, title: "Sprouting cows", body: "A popular cartoon showed people vaccinated with cowpox growing cows from their bodies. Vaccination went on to wipe out smallpox.", reaction: "panic", tags: ["Britain", "Medicine"], verdict: "overblown" },
+  { year: 1811, title: "The Luddites", body: "Textile workers smashed the new machines they said were destroying skilled jobs and wages.", reaction: "concern", tags: ["Britain", "Automation"], verdict: "mixed" }
+].map(P.EventRow).join("");
+root.querySelectorAll("details")[1].open = true;
+</script>
+</body></html>
