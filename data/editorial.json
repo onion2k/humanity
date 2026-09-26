@@ -1,0 +1,90 @@
+{
+  "featured": [
+    "370-bc-plato-on-writing",
+    "ad-69-vespasian-blocks-a-labour-saving-device",
+
+    "1000-millennium-fears",
+    "1346-black-death",
+
+    "1450-printing-press",
+    "1524-great-flood-prediction",
+
+    "1783-hydrogen-balloon-at-gonesse",
+    "1811-luddites",
+    "1818-frankenstein",
+    "1844-what-hath-god-wrought",
+    "1858-transatlantic-telegraph-cable",
+    "1896-x-ray-privacy-scare",
+
+    "1900s-radium-craze",
+    "1910-halley-s-comet",
+    "1912-titanic",
+    "1938-the-war-of-the-worlds-broadcast",
+    "1942-atmospheric-ignition",
+
+    "1945-trinity-hiroshima-and-nagasaki",
+    "1947-doomsday-clock",
+    "1954-godzilla",
+    "1954-too-cheap-to-meter",
+    "1954-the-seekers",
+    "1955-salk-polio-vaccine",
+    "1957-sputnik-and-the-missile-gap",
+    "1959-antarctic-treaty",
+    "1962-silent-spring",
+    "1962-cuban-missile-crisis",
+    "1968-earthrise",
+    "1969-moon-landing",
+
+    "1972-the-limits-to-growth",
+    "1978-first-ivf-baby",
+    "1979-skylab-re-entry",
+    "1980s-dungeons-and-dragons",
+    "1980-smallpox-eradicated",
+    "1983-wargames",
+    "1983-petrov-false-alarm",
+    "1984-ozone-hole",
+    "1986-challenger",
+    "1986-chernobyl",
+    "1989-world-wide-web-proposed",
+
+    "1990-pale-blue-dot",
+    "1995-dot-com-boom",
+    "1997-dolly-the-sheep",
+    "1997-deep-blue-beats-kasparov",
+    "1997-tamagotchi-bans",
+    "1998-mmr-vaccine-scare",
+    "1999-y2k",
+    "2007-iphone",
+    "2008-lhc",
+    "2011-fukushima",
+    "2011-harold-camping",
+    "2012-higgs-boson",
+    "2013-chelyabinsk-meteor",
+    "2014-superintelligence-warnings",
+    "2015-paris-agreement",
+    "2016-alphago",
+    "2016-pok-mon-go",
+    "2017-wannacry-and-notpetya",
+    "2018-hawaii-false-missile-alert",
+    "2018-crispr-babies",
+    "2019-5g",
+    "2020-onwards-covid-19",
+    "2020-covid-19-vaccines",
+    "2022-chatgpt",
+    "2023-ai-extinction-warnings",
+    "2024-crowdstrike-outage",
+    "2024-asteroid-2024-yr4",
+    "2026-ai-insiders-warnings"
+  ],
+  "events": {
+    "1998-asteroid-1997-xf11": {
+      "allowYearInTitle": "1997 XF11 is the asteroid's designation."
+    },
+    "2024-asteroid-2024-yr4": {
+      "allowYearInTitle": "2024 YR4 is the asteroid's designation."
+    },
+    "2025-ai-2027": {
+      "allowYearInTitle": "AI 2027 is the scenario's title."
+    }
+  }
+}

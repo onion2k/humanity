@@ -1,7 +1,15 @@
 ---
 // A placeholder home page until the timeline lands in build step 3. It proves
-// the generated tokens load and a theme takes effect.
+// the generated tokens load and the validated events reach the page.
 import "../styles/base.css";
+import { pageTimeline } from "../data/page.ts";
+import { ERAS } from "../eras.ts";
+
+const { events } = pageTimeline();
+const eras = ERAS.map((era) => {
+  const inEra = events.filter((e) => e.era === era.id);
+  return { ...era, count: inEra.length, featured: inEra.filter((e) => e.featured).length };
+});
 ---
 
 <html lang="en" data-theme="antiquity">
@@ -18,6 +26,14 @@ import "../styles/base.css";
     <main>
       <h1>Panic &amp; Wonder</h1>
       <p>How people have reacted to the new and the unknown, from omens in antiquity to AI.</p>
+      <p data-testid="event-count">{events.length} events</p>
+      <ul>
+        {eras.map((era) => (
+          <li data-era={era.id}>
+            {era.name}: {era.count} events, {era.featured} featured
+          </li>
+        ))}
+      </ul>
     </main>
   </body>
 </html>
