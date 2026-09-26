@@ -2,6 +2,7 @@
 // brand book promises and the ratio each must hold, so a palette change that
 // breaks readability in one era is caught before it ships.
 import type { EraId } from "../eras.ts";
+import { REACTIONS } from "../reactions.ts";
 import { resolveColour, type Tokens } from "./tokens.ts";
 
 export interface ContrastPair {
@@ -30,7 +31,7 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   { fg: "focus", bg: "ground-raised", min: 3 },
   // The brand book leaves these out. Colour only reinforces a reaction, but
   // the shape carries it, and a shape that fades into the ground says nothing.
-  ...["react-panic", "react-concern", "react-wonder", "react-hope"].flatMap((fg) => [
+  ...Object.values(REACTIONS).flatMap(({ token: fg }) => [
     { fg, bg: "ground", min: 3 },
     { fg, bg: "ground-raised", min: 3 },
   ]),

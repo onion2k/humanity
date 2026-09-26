@@ -41,7 +41,7 @@ A scroll-driven timeline of about 400 events showing how people reacted to the n
 - `data/events.sample.json`: the prototype's 23 events in the handoff's proposed shape. It is kept for reference only.
 - `design-system/`: the handoff's brand book, tokens and reference components, as delivered. `tokens.json` is the only source of colour, type, spacing, radius, duration and easing.
 - `src/eras.ts`: the eight eras, their spans and `eraForYear`.
-- `src/reactions.ts`: the closed list of reactions the site can show, and the verdicts. A reaction in the data but not here stops the build, because it has no shape yet.
+- `src/reactions.ts`: the closed list of reactions the site can show, each with its word, its 20×20 silhouette and the `react-*` token that fills it, and the verdicts. A reaction in the data but not here stops the build, because it has no shape yet. The contrast gate takes its reaction pairs from this table, so a new reaction is held to 3:1 as soon as it is added.
 - `src/data/`: the event data, as the thing itself without its picture. `schema.ts` holds both files' shapes. `markdown.ts` renders `*italics*` and refuses everything else. `timeline.ts` is `buildTimeline`, a pure function from the two files to sorted events, vocabularies and issues. `load.ts` reads the files from disk for the integration, the tests and the scripts. `page.ts` is the pages' copy, bundled by Vite so no path is read after the build.
 - `src/tokens/`: the thing itself, without its picture. It reads `tokens.json` (`tokens.ts`), writes the CSS (`css.ts`) and holds the contrast gate (`contrast.ts`). It is plain TypeScript with no DOM.
 - `integrations/tokens.ts`: runs the contrast gate and writes `src/styles/tokens.css` (generated and git-ignored).
