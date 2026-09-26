@@ -27,7 +27,7 @@
     "preview": "astro preview",
     "prepare": "git config core.hooksPath .githooks",
     "typecheck": "astro check",
-    "lint": "eslint .",
+    "lint": "astro sync && eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
