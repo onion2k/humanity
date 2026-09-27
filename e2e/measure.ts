@@ -4,6 +4,7 @@
 // own before anything is read into what it reports.
 import type { CDPSession, Page } from "@playwright/test";
 import { gzipSync } from "node:zlib";
+import { TEST_API_MARK } from "../integrations/test-api.ts";
 import { openTimeline } from "./helpers.ts";
 
 export interface LoadFigures {
@@ -57,7 +58,8 @@ export async function measureLoad(page: Page, cdp: CDPSession): Promise<LoadFigu
             sizes.htmlGzip += gzipSync(body).length;
           } else if (type === "stylesheet") sizes.css += body.length;
           // The test API is loaded only in the test build and never ships, so it is left out.
-          else if (type === "script" && !response.url().includes("TestApi")) sizes.script += body.length;
+          else if (type === "script" && !body.toString("utf8").includes(TEST_API_MARK))
+            sizes.script += body.length;
           else if (type === "font") {
             sizes.fonts += 1;
             sizes.fontBytes += body.length;

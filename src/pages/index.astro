@@ -7,7 +7,6 @@ import Chapter from "../components/Chapter.astro";
 import FilterPanel from "../components/FilterPanel.astro";
 import Hud from "../components/Hud.astro";
 import Seam from "../components/Seam.astro";
-import TestApi from "../components/TestApi.astro";
 import { chapters } from "../data/chapters.ts";
 import { pageTimeline } from "../data/page.ts";
 import { seamFades } from "../tokens/seams.ts";
@@ -18,7 +17,6 @@ const tokens = pageTokens();
 const plan = chapters(events);
 const first = events[0];
 const last = events[events.length - 1];
-const testBuild = import.meta.env.PUBLIC_TEST_API === "1";
 ---
 
 <html lang="en" data-theme="antiquity">
@@ -84,6 +82,5 @@ const testBuild = import.meta.env.PUBLIC_TEST_API === "1";
       import "../client/engine.ts";
       import "../client/filters.ts";
     </script>
-    {testBuild && <TestApi />}
   </body>
 </html>

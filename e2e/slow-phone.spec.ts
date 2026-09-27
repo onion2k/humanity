@@ -6,6 +6,7 @@
 // the whole page ever drops a frame for long.
 import { readFileSync, writeFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+import { TEST_API_MARK } from "../integrations/test-api.ts";
 
 const BASELINE_PATH = new URL("./baselines/slow-phone.json", import.meta.url);
 
@@ -39,7 +40,11 @@ test("a slow phone sees the page soon and scrolls it without a long frame @perf"
   test.skip(info.project.name !== "phone", "It models a phone.");
   test.setTimeout(180_000);
   // The test API never ships, so it is kept out of what the reader downloads.
-  await page.route("**/TestApi*", (route) => route.abort());
+  await page.route("**/_astro/*.js", async (route) => {
+    const response = await route.fetch();
+    if ((await response.text()).includes(TEST_API_MARK)) await route.abort();
+    else await route.fulfill({ response });
+  });
   const cdp = await context.newCDPSession(page);
   await cdp.send("Network.enable");
   await cdp.send("Network.emulateNetworkConditions", NETWORK);
