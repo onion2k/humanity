@@ -32,6 +32,20 @@ const testBuild = import.meta.env.PUBLIC_TEST_API === "1";
     />
   </head>
   <body>
+    {/* First in the page, so the Filter button is the first thing Tab reaches, not the last after every row. */}
+    <div class="chrome">
+      <button
+        type="button"
+        class="filter-toggle"
+        data-skin="reading"
+        data-theme="antiquity"
+        aria-expanded="false"
+        aria-controls="filter-panel"
+      >
+        Filter<span class="filter-badge" hidden></span>
+      </button>
+      <Hud />
+    </div>
     <header class="intro">
       <h1>Panic &amp; Wonder</h1>
       <p>How people have reacted to the new and the unknown, from omens in antiquity to AI.</p>
@@ -65,19 +79,6 @@ const testBuild = import.meta.env.PUBLIC_TEST_API === "1";
         </p>
       </div>
     </footer>
-    <div class="chrome">
-      <button
-        type="button"
-        class="filter-toggle"
-        data-skin="reading"
-        data-theme="antiquity"
-        aria-expanded="false"
-        aria-controls="filter-panel"
-      >
-        Filter<span class="filter-badge" hidden></span>
-      </button>
-      <Hud />
-    </div>
     <FilterPanel vocabularies={vocabularies} chapters={plan} total={events.length} />
     <script>
       import "../client/engine.ts";

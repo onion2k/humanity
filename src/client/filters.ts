@@ -11,6 +11,7 @@ import {
   type Facets,
   type Filter,
 } from "../engine/filter.ts";
+import { landOn } from "./settle.ts";
 
 const panel = document.querySelector<HTMLElement>("#filter-panel");
 const toggle = document.querySelector<HTMLButtonElement>("button.filter-toggle");
@@ -86,9 +87,11 @@ if (panel && toggle) {
     toggle.focus();
   });
   // A jump to an era closes the panel, which on a phone would otherwise cover the chapter.
-  for (const link of panel.querySelectorAll(".era-menu a")) {
+  for (const link of panel.querySelectorAll<HTMLAnchorElement>(".era-menu a")) {
     link.addEventListener("click", () => {
       open(false);
+      const heading = document.getElementById(link.hash.slice(1));
+      if (heading) void landOn(heading);
     });
   }
 }

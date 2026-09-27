@@ -6,6 +6,10 @@
 @import "./timeline.css";
 
 html {
+  /* Anything scrolled into view, such as a row reached by Tab, stops below the fixed chrome rather than under it,
+     and short of the bottom edge, so its focus ring shows whole. */
+  scroll-padding-top: var(--space-24);
+  scroll-padding-bottom: var(--space-8);
   background: var(--ground);
   color: var(--ink);
   font-family: var(--font-body);

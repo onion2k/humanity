@@ -64,7 +64,18 @@ async function nextStep(page: Page, random: Random): Promise<Step> {
       const rows = await visibleRows(page);
       if (rows.length === 0) return { name: "click a row (none on screen)", run: () => Promise.resolve() };
       const id = random.pick(rows);
-      return { name: `click ${id}`, run: (p) => p.locator(`[data-event="${id}"] > summary`).click() };
+      return {
+        name: `click ${id}`,
+        // A reader taps where they see the row, so this finds its middle now and taps there, rather than letting
+        // Playwright scroll it about first.
+        run: async (p) => {
+          const point = await p.evaluate((rowId) => {
+            const box = document.querySelector(`[data-event="${rowId}"] > summary`)?.getBoundingClientRect();
+            return box ? { x: box.left + box.width / 2, y: box.top + box.height / 2 } : null;
+          }, id);
+          if (point) await p.mouse.click(point.x, point.y);
+        },
+      };
     }
     case "tab": {
       const n = random.int(1, 5);

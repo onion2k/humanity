@@ -109,6 +109,19 @@
   flex-direction: column;
 }
 
+/* Each event is skipped too until the reader nears it, so the first time a big chapter comes into range the
+   browser lays out only the events near the screen, not all 161 of digital's. The clip margin lets the card's
+   marker on the spine and the focus ring, which both reach outside the event's box, still draw. */
+.slot {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 44px;
+  overflow-clip-margin: 64px;
+}
+
+.slot-card {
+  contain-intrinsic-block-size: auto 380px;
+}
+
 /* Cards: either side of the spine, each tied to it by a small marker. */
 .slot-card {
   position: relative;
@@ -208,9 +221,10 @@
   color: var(--ink-muted);
 }
 
-/* The dot belongs to the tag before it, so when the tags wrap it ends a line rather than starting one. */
+/* The dot belongs to the tag before it, so when the tags wrap it ends a line rather than starting one. Its empty
+   alternative text keeps a screen reader from reading it out between tags. */
 .tag:has(+ .tag)::after {
-  content: "·";
+  content: "·" / "";
   margin-left: var(--space-2);
 }
 
@@ -281,8 +295,10 @@
   text-wrap: balance;
 }
 
+/* The + and − only show that a row opens. A screen reader already hears "collapsed" or "expanded" from the
+   <details>, so they carry empty alternative text rather than being read as "plus" and "minus". */
 .row-title::after {
-  content: "+";
+  content: "+" / "";
   margin-left: var(--space-2);
   font-family: var(--font-label);
   font-size: 14px;
@@ -291,7 +307,7 @@
 }
 
 .event-row[open] .row-title::after {
-  content: "\2212";
+  content: "\2212" / "";
 }
 
 .event-row > summary:hover .row-title {
@@ -635,11 +651,6 @@
 [data-event][data-dimmed]:hover,
 [data-event][data-dimmed]:focus-within {
   opacity: 1;
-}
-
-/* A jump to an era lands below the fixed chrome. */
-.chapter-head h2 {
-  scroll-margin-top: var(--space-24);
 }
 
 @media (prefers-reduced-motion: no-preference) {

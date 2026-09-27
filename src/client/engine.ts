@@ -12,6 +12,7 @@ import {
   type EventIndex,
 } from "../engine/reading.ts";
 import { ERAS, type EraId } from "../eras.ts";
+import { keepInView } from "./settle.ts";
 
 interface SeamParts {
   element: HTMLElement;
@@ -55,7 +56,9 @@ const years = new Map<EraId, number[]>(
 );
 const index: EventIndex = {
   years: (era) => years.get(era) ?? [],
-  topOf: (era, i) => events.get(era)?.[i]?.getBoundingClientRect().top ?? 0,
+  // The slot around an event is always laid out; the event inside it may be skipped until it is near the screen,
+  // and reading its position would force the layout the skipping saves.
+  topOf: (era, i) => (events.get(era)?.[i]?.parentElement ?? undefined)?.getBoundingClientRect().top ?? 0,
 };
 
 const hud = document.querySelector<HTMLElement>(".hud");
@@ -133,6 +136,12 @@ function queue(): void {
 root.classList.add("engine-on");
 window.addEventListener("scroll", queue, { passive: true });
 window.addEventListener("resize", queue);
+// A row reached by Tab is scrolled into view by the browser, which can land it under the chrome or off the screen
+// once the events it passes are drawn. This puts it back where the reader can see it.
+document.addEventListener("focusin", (event) => {
+  const target = event.target;
+  if (target instanceof HTMLElement && target.closest("main")) void keepInView(target);
+});
 // Opening a row, a face arriving late or a chapter drawn for the first time all move what is under the reading
 // line without a scroll, so the engine also looks again whenever a chapter or seam changes size.
 const resized = new ResizeObserver(queue);

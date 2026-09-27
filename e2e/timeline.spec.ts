@@ -172,17 +172,17 @@ test("the test API puts an event at the top of the viewport and reports the era 
 });
 
 test("every date reads exactly as the export writes it, on cards and on rows", async ({ page }) => {
-  // innerText shows text as drawn, case and all, and a chapter is only drawn once it is near the screen.
-  const shown: string[] = [];
-  for (const era of ERA_IDS) {
-    await scrollToEra(page, era);
-    shown.push(
-      ...(await page
-        .locator(`[data-chapter="${era}"] [data-event]`)
-        .evaluateAll((els) =>
-          els.map((el) => (el.querySelector<HTMLElement>(".event-date, .row-date")?.innerText ?? "").trim()),
-        )),
-    );
-  }
-  expect(shown).toEqual(timeline.events.map((e) => e.date));
+  // The text must be the export's, and nothing may restyle its case. Both can be read without drawing the event,
+  // which matters now that each event is skipped until the reader is near it.
+  const shown = await page.locator("[data-event]").evaluateAll((els) =>
+    els.map((el) => {
+      const date = el.querySelector<HTMLElement>(".event-date, .row-date");
+      return {
+        text: date?.textContent ?? "",
+        transform: date ? getComputedStyle(date).textTransform : "missing",
+      };
+    }),
+  );
+  expect(shown.map((d) => d.text)).toEqual(timeline.events.map((e) => e.date));
+  expect([...new Set(shown.map((d) => d.transform))]).toEqual(["none"]);
 });
