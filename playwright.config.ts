@@ -13,7 +13,7 @@ export default defineConfig({
   reporter: [["list"]],
   snapshotPathTemplate: "e2e/pictures/{projectName}/{arg}{ext}",
   expect: {
-    toHaveScreenshot: { maxDiffPixelRatio: 0, threshold: 0.1, animations: "disabled", caret: "hide" },
+    toHaveScreenshot: { maxDiffPixelRatio: 0, threshold: 0.03, animations: "disabled", caret: "hide" },
   },
   use: { baseURL: `http://127.0.0.1:${PORT}` },
   projects: [
