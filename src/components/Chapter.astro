@@ -4,7 +4,6 @@
 // browser skips laying it out until the reader is near it.
 import { eraSpan, type Chapter } from "../data/chapters.ts";
 import type { Rendered } from "../data/markdown.ts";
-import { artStrength, artUrl } from "../art.ts";
 import { TEXTURES, textureTile } from "../dressing.ts";
 import type { Vocabularies } from "../data/timeline.ts";
 import EventCard from "./EventCard.astro";
@@ -30,26 +29,7 @@ const count = `${events.length} ${events.length === 1 ? "event" : "events"}`;
 >
   {/* The spine runs the chapter's full height, past its heading, so it meets the bands either side unbroken. */}
   <div class="spine" aria-hidden="true"></div>
-  {/* The era's art, one piece in each margin, pinned in view while the reader is in this chapter. Wide screens only. */}
-  {(["left", "right"] as const).map((side) => (
-    <div class="margin-art" data-side={side} aria-hidden="true">
-      <div
-        class="art"
-        data-art={era.id}
-        data-part={side}
-        style={{ "--art": `url(${artUrl(era.id, side)})`, "--art-strength": artStrength(era.id) }}
-      />
-    </div>
-  ))}
   <header class="chapter-head">
-    {/* Where there are no margins, the era's emblem stands above its heading instead. */}
-    <div
-      class="emblem"
-      data-art={era.id}
-      data-part="emblem"
-      aria-hidden="true"
-      style={{ "--art": `url(${artUrl(era.id, "emblem")})` }}
-    />
     <h2 id={`era-${era.id}`}>{era.name}</h2>
     <p class="chapter-span">
       {eraSpan(era)} · {count}

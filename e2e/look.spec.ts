@@ -132,21 +132,3 @@ test.describe("filters", () => {
     await picture(page, "filtered-focus");
   });
 });
-
-// The era art in the margins, at a width that gives it room. A phone shows only the emblem, which the chapter
-// pictures above already hold.
-test.describe("the era art", () => {
-  test.skip(({ viewport }) => (viewport?.width ?? 0) < 1200, "phones have no margins");
-
-  for (const era of ERA_IDS) {
-    test(`the ${era} art at 1440`, async ({ page }) => {
-      await page.setViewportSize({ width: 1440, height: 900 });
-      await scrollToEra(page, era);
-      const into = await page
-        .locator(`[data-chapter="${era}"]`)
-        .evaluate((c) => c.getBoundingClientRect().top + window.scrollY + 360);
-      await scrollToY(page, into);
-      await picture(page, `art-${era}`);
-    });
-  }
-});

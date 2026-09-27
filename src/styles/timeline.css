@@ -112,69 +112,6 @@
   pointer-events: none;
 }
 
-/* The era's art, from src/art.ts. On a wide screen a piece stands in each margin, pinned half way down the screen
-   for as long as the reader is in its chapter; the chapter clips it, so it leaves with its era and never reaches
-   into a band. Each piece takes the width its margin gives it, 16px clear of the track and 12px from the edge,
-   and no more than a third of the screen's height is left for it to be tall. It is a mask, so its colour is the
-   era's accent, kept faint. It is hidden where there is no room, and a hidden piece is never fetched. */
-.margin-art {
-  display: none;
-}
-
-.emblem {
-  width: 56px;
-  height: 56px;
-  background: var(--accent);
-  mask: var(--art) center / contain no-repeat;
-}
-
-@media (min-width: 1200px) {
-  .margin-art {
-    display: block;
-    position: absolute;
-    inset-block: 0;
-    width: calc((100% - 1040px) / 2);
-    pointer-events: none;
-  }
-
-  .margin-art[data-side="left"] {
-    left: 0;
-  }
-
-  .margin-art[data-side="right"] {
-    right: 0;
-  }
-
-  /* The width is a share of the margin, and the height follows from it. Where to pin it needs that height too, and
-     the pinning offset can only read the screen's size, so it works the margin out from the screen's width; a
-     scrollbar makes it a few pixels off centre, which nobody can see. Measuring the margin as a container instead
-     cost a third more style work on every scroll. */
-  .art {
-    --art-width: min(100% - 28px, 280px, (100vh - 160px) / 3);
-    position: sticky;
-    top: calc(50vh - 1.5 * min((100vw - 1040px) / 2 - 28px, 280px, (100vh - 160px) / 3));
-    width: var(--art-width);
-    aspect-ratio: 1 / 3;
-    max-height: 100%;
-    background: var(--accent);
-    opacity: var(--art-strength);
-    mask: var(--art) center / contain no-repeat;
-  }
-
-  .margin-art[data-side="left"] .art {
-    margin-left: max(12px, 100% - 16px - var(--art-width));
-  }
-
-  .margin-art[data-side="right"] .art {
-    margin-left: 16px;
-  }
-
-  /* The margins carry the era's art here, so the heading needs no emblem. */
-  .emblem {
-    display: none;
-  }
-}
-
 /* The spine runs down the middle of every chapter and every band, from the first event to the last. */
 .spine {
   position: absolute;

@@ -24,14 +24,6 @@ export interface PageState {
   dimmed: string[];
   count: string;
   panelOpen: boolean;
-  /** The era art drawn on screen, read from the page: whose it is, which piece, and where it lies. */
-  art: DrawnArt[];
-}
-
-export interface DrawnArt {
-  era: EraId;
-  part: "left" | "right" | "emblem";
-  rect: { left: number; top: number; right: number; bottom: number };
 }
 
 export interface TestApi {

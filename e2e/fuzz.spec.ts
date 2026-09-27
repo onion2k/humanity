@@ -9,7 +9,7 @@ import { seeded, type Random } from "../src/random.ts";
 import { openTimeline, scrollToEvent, scrollToY, settle, state, timeline } from "./helpers.ts";
 
 const STEPS = 25;
-const WIDTHS = [375, 414, 719, 720, 1024, 1199, 1200, 1280, 1440];
+const WIDTHS = [375, 414, 719, 720, 1024, 1280, 1440];
 
 function seedsToRun(): number[] {
   const one = process.env.FUZZ_SEED;
@@ -157,28 +157,6 @@ async function brokenRules(page: Page): Promise<string[]> {
       if (s.outlineStyle !== "solid" || s.outlineWidth !== "2px") {
         broken.push(`focused ${focused.tagName} has no focus ring (${s.outlineStyle} ${s.outlineWidth})`);
       }
-    }
-    // The era art is decoration: each piece drawn belongs to its own chapter's era and lies over nothing a reader reads.
-    const readable = [
-      ...document.querySelectorAll<HTMLElement>(
-        ".chapter-head h2, .chapter-head p, .event-card, .event-row > summary, .event-row[open] > .row-more",
-      ),
-    ]
-      .map((el) => el.getBoundingClientRect())
-      .filter((r) => r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < window.innerHeight);
-    for (const art of document.querySelectorAll<HTMLElement>("[data-art]")) {
-      const a = art.getBoundingClientRect();
-      if (a.width === 0 || a.height === 0 || a.bottom <= 0 || a.top >= window.innerHeight) continue;
-      const theme = art.closest("[data-theme]")?.getAttribute("data-theme");
-      if (theme !== art.dataset.art)
-        broken.push(`the ${art.dataset.art ?? "?"} art is in the ${theme ?? "no"} skin`);
-      const over = readable.some(
-        (r) => a.left < r.right && a.right > r.left && a.top < r.bottom && a.bottom > r.top,
-      );
-      if (over)
-        broken.push(
-          `the ${art.dataset.art ?? "?"} ${art.dataset.part ?? "?"} art lies over something to read`,
-        );
     }
     for (const row of document.querySelectorAll<HTMLDetailsElement>("details.event-row[open]")) {
       const chapter = row.closest<HTMLElement>("[data-chapter]");

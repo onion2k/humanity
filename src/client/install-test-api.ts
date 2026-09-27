@@ -1,7 +1,7 @@
 // Installs window.__pw in test builds. The page itself never loads this, so
 // the shipped site has no script at all until the scroll engine arrives.
 import { ERA_IDS, type EraId } from "../eras.ts";
-import type { DrawnArt, PageState, TestApi } from "./test-api.ts";
+import type { PageState, TestApi } from "./test-api.ts";
 
 /** Resolves after the browser has drawn n frames, so a scroll has been laid out before anything reads it. */
 function frames(n: number): Promise<void> {
@@ -104,21 +104,6 @@ function tickedFilter(): PageState["filter"] {
   return { reactions: on("reaction"), regions: on("region"), themes: on("theme") };
 }
 
-/** The art with a size and a part on screen. Art in a chapter the browser has not drawn has no size. */
-function drawnArt(): DrawnArt[] {
-  return [...document.querySelectorAll<HTMLElement>("[data-art]")].flatMap((el) => {
-    const r = el.getBoundingClientRect();
-    const era = el.dataset.art ?? "";
-    const part = el.dataset.part;
-    if (r.width === 0 || r.height === 0 || r.bottom <= 0 || r.top >= window.innerHeight) return [];
-    if (!(ERA_IDS as readonly string[]).includes(era)) return [];
-    if (part !== "left" && part !== "right" && part !== "emblem") return [];
-    return [
-      { era: era as EraId, part, rect: { left: r.left, top: r.top, right: r.right, bottom: r.bottom } },
-    ];
-  });
-}
-
 const api: TestApi = {
   async scrollToEvent(id, offset = 0) {
     const el = required(`[data-event="${CSS.escape(id)}"]`);
@@ -173,7 +158,6 @@ const api: TestApi = {
       ),
       count: document.querySelector(".filter-count")?.textContent ?? "",
       panelOpen: document.querySelector<HTMLElement>("#filter-panel")?.hidden === false,
-      art: drawnArt(),
     };
   },
 };
