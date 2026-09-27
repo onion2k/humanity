@@ -50,7 +50,7 @@ describe("the dressing contrast gate", () => {
 
   it("does not hold the chapter heading's accent to the texture, because the texture stays out from under the heading", () => {
     const text = dressingContrastFailures(tokens, TEXTURES, ["accent"]).map((f) => `${f.era} ${f.where}`);
-    expect(text).toContain("machine texture");
+    expect(text).toContain("atomic texture");
     expect(dressingContrastFailures(tokens).some((f) => f.text === "accent")).toBe(false);
   });
 });
