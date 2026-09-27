@@ -1,0 +1,67 @@
+{
+  "exclude": ["prototype/**", "tests/**"],
+  "keep": [
+    {
+      "match": "#efe6d8",
+      "file": "src/styles/tokens.css",
+      "reason": "Antiquity's limestone ground; the brand book dresses the era in limestone and terracotta."
+    },
+    {
+      "match": "#f8f2e8",
+      "file": "src/styles/tokens.css",
+      "reason": "Antiquity's raised limestone, for cards on the limestone ground."
+    },
+    {
+      "match": "#f3d9c9",
+      "file": "src/styles/tokens.css",
+      "reason": "Antiquity's terracotta, softened for the verdict stamp."
+    },
+    {
+      "match": "#f1e7cf",
+      "file": "src/styles/tokens.css",
+      "reason": "Medieval vellum, the era's signature cue in the brand book."
+    },
+    { "match": "#faf3e0", "file": "src/styles/tokens.css", "reason": "Medieval's raised vellum, for cards." },
+    {
+      "match": "#f4f0e6",
+      "file": "src/styles/tokens.css",
+      "reason": "Print's cream stock; the brand book defines the era as black ink on cream."
+    },
+    { "match": "#fbf9f3", "file": "src/styles/tokens.css", "reason": "Print's raised cream, for cards." },
+    {
+      "match": "#efe6d2",
+      "file": "src/styles/tokens.css",
+      "reason": "Industrial ink: brass-lit cream text on bottle-green wallpaper, where pure white would read as a screen."
+    },
+    {
+      "match": "#f2ece0",
+      "file": "src/styles/tokens.css",
+      "reason": "Machine Age deco cream, from the brand book's cream, black, gold and jade."
+    },
+    {
+      "match": "#fffaf0",
+      "file": "src/styles/tokens.css",
+      "reason": "Machine Age's raised deco cream, for cards."
+    },
+    {
+      "match": "#fbe0d2",
+      "file": "src/styles/tokens.css",
+      "reason": "Atomic orange softened for the verdict stamp; it is peach because the accent is orange."
+    },
+    {
+      "match": "#f6e9d8",
+      "file": "src/styles/tokens.css",
+      "reason": "Analog ink: the warm glow of a TV in a dark brown room, as the brand book dresses the era."
+    },
+    {
+      "match": "--radius-lg: 14px",
+      "file": "src/styles/tokens.css",
+      "reason": "Only Atomic and Analog wear it, for rounded TV screens and Formica; every other era is square or nearly so."
+    },
+    {
+      "match": "--radius-pill: 999px",
+      "file": "src/styles/tokens.css",
+      "reason": "The brand book specifies a pill edge for the verdict stamp, part of the fixed chassis."
+    }
+  ]
+}
