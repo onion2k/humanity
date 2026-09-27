@@ -21,17 +21,16 @@ async function focused(page: Page): Promise<Stop> {
     const el = document.activeElement as HTMLElement | null;
     if (!el || el === document.body) return { what: "body", ring: "", onScreen: false, clearOfChrome: false };
     const box = el.getBoundingClientRect();
-    const chrome = document.querySelector(".chrome")?.getBoundingClientRect();
+    // The chrome is the HUD and the Filter button, which on a phone sit at opposite ends of the screen.
+    // The chrome is the HUD and the Filter button, which on a phone sit at opposite ends of the screen.
+    const chrome = [...document.querySelectorAll(".hud, .filter-toggle")].map((c) =>
+      c.getBoundingClientRect(),
+    );
     const s = getComputedStyle(el);
     const what = el.closest("[data-event]")?.getAttribute("data-event") ?? el.className;
-    const overlaps =
-      chrome !== undefined &&
-      !(
-        box.bottom <= chrome.top ||
-        box.top >= chrome.bottom ||
-        box.right <= chrome.left ||
-        box.left >= chrome.right
-      );
+    const overlaps = chrome.some(
+      (c) => !(box.bottom <= c.top || box.top >= c.bottom || box.right <= c.left || box.left >= c.right),
+    );
     return {
       what,
       ring: `${s.outlineStyle} ${s.outlineWidth}`,

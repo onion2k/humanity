@@ -730,15 +730,23 @@
     padding: var(--space-1) var(--space-2);
   }
 
+  /* On a phone the Filter button moves to the bottom right, within reach of a thumb, and leaves only the HUD at the
+     top, where it would otherwise cover most of the width. It stays first in the page, so first to Tab. Its panel
+     opens just above it, so the button is always there to close it. */
+  .filter-toggle {
+    position: fixed;
+    right: var(--space-4);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-4));
+    height: 44px;
+  }
+
   .filter-panel {
     top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    right: var(--space-4);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-4) + 44px + var(--space-2));
+    left: var(--space-4);
     width: auto;
     max-height: 70vh;
-    border-width: var(--era-border) 0 0;
-    border-radius: var(--era-radius) var(--era-radius) 0 0;
   }
 
   .hud-year {

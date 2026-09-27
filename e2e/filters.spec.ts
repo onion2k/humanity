@@ -189,3 +189,40 @@ test("axe finds nothing with the panel open, and nothing but dimmed events with 
     .analyze();
   expect(filtered.violations.map((v) => v.id)).toEqual([]);
 });
+
+test("on a phone the Filter button sits at the bottom right, and its panel opens above it, leaving it to close with", async ({
+  page,
+}, info) => {
+  const button = page.locator("button.filter-toggle");
+  const box = await button.boundingBox();
+  const viewport = page.viewportSize() ?? { width: 0, height: 0 };
+  if (info.project.name !== "phone") {
+    const hud = await page.locator(".hud").boundingBox();
+    expect(Math.abs((box?.y ?? 0) - (hud?.y ?? 0)), "beside the HUD on a wide screen").toBeLessThan(1);
+    return;
+  }
+  expect(viewport.height - ((box?.y ?? 0) + (box?.height ?? 0)), "near the bottom").toBeLessThan(40);
+  expect(viewport.width - ((box?.x ?? 0) + (box?.width ?? 0)), "at the right").toBeLessThan(40);
+  expect(box?.height ?? 0, "a thumb-sized target").toBeGreaterThanOrEqual(44);
+  await button.click();
+  const panel = await page.locator("#filter-panel").boundingBox();
+  expect((panel?.y ?? 0) + (panel?.height ?? 0), "the panel ends above the button").toBeLessThanOrEqual(
+    box?.y ?? 0,
+  );
+  await button.click();
+  expect((await state(page)).panelOpen).toBe(false);
+});
+
+test("on a phone only the HUD sits at the top, so it covers less than half the width", async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== "phone", "The phone layout.");
+  const width = page.viewportSize()?.width ?? 0;
+  const covered = await page.evaluate(() =>
+    [...document.querySelectorAll(".hud, .filter-toggle")]
+      .map((el) => el.getBoundingClientRect())
+      .filter((r) => r.top < 100)
+      .reduce((sum, r) => sum + r.width, 0),
+  );
+  expect(covered).toBeLessThan(width / 2);
+});

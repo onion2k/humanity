@@ -17,6 +17,13 @@ html {
   line-height: var(--type-body-line);
 }
 
+/* On a phone the Filter button sits at the bottom, so scrolled-to things stop above it too. */
+@media (max-width: 719px) {
+  html {
+    scroll-padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-4) + 44px + var(--space-4));
+  }
+}
+
 body {
   margin: 0;
 }
