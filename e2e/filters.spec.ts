@@ -226,3 +226,40 @@ test("on a phone only the HUD sits at the top, so it covers less than half the w
   );
   expect(covered).toBeLessThan(width / 2);
 });
+
+test("the chrome keeps square corners in every era, and the Filter button carries the era's accent rule", async ({
+  page,
+}) => {
+  await page.locator(".filter-toggle").click();
+  for (const era of ERAS) {
+    await scrollToEra(page, era.id);
+    const look = await page.evaluate(() => {
+      const radius = (selector: string): string => {
+        const el = document.querySelector(selector);
+        return el ? getComputedStyle(el).borderTopLeftRadius : "missing";
+      };
+      const toggle = document.querySelector(".filter-toggle");
+      if (!toggle) throw new Error("no Filter button");
+      // The accent is read through a probe inside the button, so it is resolved in the same skin the button wears.
+      const probe = document.createElement("span");
+      probe.style.color = "var(--accent)";
+      toggle.append(probe);
+      const accent = getComputedStyle(probe).color;
+      probe.remove();
+      const style = getComputedStyle(toggle);
+      return {
+        hud: radius(".hud"),
+        toggle: radius(".filter-toggle"),
+        panel: radius(".filter-panel"),
+        rule: `${style.borderBottomWidth} ${style.borderBottomStyle} ${style.borderBottomColor}`,
+        accent,
+      };
+    });
+    expect({ hud: look.hud, toggle: look.toggle, panel: look.panel }, era.id).toEqual({
+      hud: "0px",
+      toggle: "0px",
+      panel: "0px",
+    });
+    expect(look.rule, era.id).toBe(`2px solid ${look.accent}`);
+  }
+});

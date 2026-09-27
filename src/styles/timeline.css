@@ -387,7 +387,10 @@
   gap: var(--space-2);
 }
 
-/* The chrome is fixed, so the browser draws it as a layer of its own. Whole-pixel widths keep that layer on whole
+/* The chrome is part of the chassis, so its corners stay square in every era while cards take the era's edge. Only
+   its colours follow the skin, and the Filter button's accent rule marks it as the one thing here that acts.
+
+   The chrome is fixed, so the browser draws it as a layer of its own. Whole-pixel widths keep that layer on whole
    pixels; at a fractional position its text can be drawn a hair differently from one frame to the next. Each width
    fits the longest thing it holds: "430 BC" and "Machine Age" in the HUD, and "Filter 386" on the button. */
 .hud {
@@ -400,7 +403,7 @@
   background: var(--ground-raised);
   color: var(--ink);
   border: var(--era-border) solid var(--rule);
-  border-radius: var(--era-radius);
+  border-radius: var(--radius-none);
 }
 
 .hud-year {
@@ -450,7 +453,8 @@
   background: var(--ground-raised);
   color: var(--ink);
   border: var(--era-border) solid var(--rule);
-  border-radius: var(--era-radius);
+  border-bottom: 2px solid var(--accent);
+  border-radius: var(--radius-none);
   cursor: pointer;
 }
 
@@ -485,7 +489,7 @@
   background: var(--ground-raised);
   color: var(--ink);
   border: var(--era-border) solid var(--rule);
-  border-radius: var(--era-radius);
+  border-radius: var(--radius-none);
 }
 
 .filter-panel[hidden] {
