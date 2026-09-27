@@ -1,21 +1,20 @@
-// Where the reader is: which chapter or seam is under the middle of the
-// screen, and which year the HUD should show. It takes rectangles and a way to
-// look up event positions, and reads as few of them as it can, because it
-// runs on every frame of a scroll through 386 events.
+// Where the reader is: which chapter, or which band between two chapters, is
+// under the middle of the screen, and which year the HUD should show. It takes
+// rectangles and a way to look up event positions, and reads as few of them as
+// it can, because it runs on every frame of a scroll through 386 events.
 import { ERAS, type EraId } from "../eras.ts";
-import { blendAt, seamRaw, type Blend } from "./blend.ts";
 
 /** The HUD shows the last event above this share of the viewport's height. */
 export const READING_LINE = 0.55;
 
 export type Block =
   | { kind: "chapter"; era: EraId; top: number; height: number }
-  | { kind: "seam"; index: number; from: EraId; to: EraId; top: number; height: number };
+  | { kind: "band"; index: number; from: EraId; to: EraId; top: number; height: number };
 
 export interface Reading {
-  /** The era whose skin the reader is in: in a seam, the earlier era until the midpoint. */
+  /** The era the reader is in: in a band, the earlier era until its middle and the later one from it. */
   era: EraId;
-  seam: { index: number; blend: Blend } | null;
+  band: { index: number; past: boolean } | null;
 }
 
 export interface EventIndex {
@@ -48,19 +47,19 @@ export function formatYear(year: number): string {
   return String(year);
 }
 
-export function reading(blocks: readonly Block[], viewportHeight: number, reducedMotion = false): Reading {
+export function reading(blocks: readonly Block[], viewportHeight: number): Reading {
   const middle = viewportHeight / 2;
   const first = blocks[0];
   const last = blocks[blocks.length - 1];
-  if (first && middle < first.top) return { era: ERAS[0]?.id ?? "antiquity", seam: null };
+  if (first && middle < first.top) return { era: ERAS[0]?.id ?? "antiquity", band: null };
   for (const block of blocks) {
     if (middle < block.top || middle >= block.top + block.height) continue;
-    if (block.kind === "chapter") return { era: block.era, seam: null };
-    const blend = blendAt(seamRaw(block.top, block.height, viewportHeight), reducedMotion);
-    return { era: blend.pi === 1 ? block.to : block.from, seam: { index: block.index, blend } };
+    if (block.kind === "chapter") return { era: block.era, band: null };
+    const past = middle >= block.top + block.height / 2;
+    return { era: past ? block.to : block.from, band: { index: block.index, past } };
   }
   const lastEra = last?.kind === "chapter" ? last.era : last?.to;
-  return { era: lastEra ?? ERAS[ERAS.length - 1]?.id ?? "digital", seam: null };
+  return { era: lastEra ?? ERAS[ERAS.length - 1]?.id ?? "digital", band: null };
 }
 
 function eraStart(era: EraId): number {
@@ -71,12 +70,13 @@ function eraStart(era: EraId): number {
 export function hudYear(where: Reading, index: EventIndex, line: number): number {
   const first = ERAS[0]?.id;
   const firstYear = (): number => (first === undefined ? 0 : (index.years(first)[0] ?? eraStart(first)));
-  if (where.seam) {
-    const seamEras = { from: ERAS[where.seam.index]?.id, to: ERAS[where.seam.index + 1]?.id };
-    if (where.seam.blend.pi === 1) return seamEras.to === undefined ? firstYear() : eraStart(seamEras.to);
-    if (seamEras.from === undefined) return firstYear();
-    const years = index.years(seamEras.from);
-    return years[years.length - 1] ?? (seamEras.from === first ? firstYear() : eraStart(seamEras.from));
+  if (where.band) {
+    const from = ERAS[where.band.index]?.id;
+    const to = ERAS[where.band.index + 1]?.id;
+    if (where.band.past) return to === undefined ? firstYear() : eraStart(to);
+    if (from === undefined) return firstYear();
+    const years = index.years(from);
+    return years[years.length - 1] ?? (from === first ? firstYear() : eraStart(from));
   }
   const years = index.years(where.era);
   const i = lastAtOrAbove(years.length, (j) => index.topOf(where.era, j), line);

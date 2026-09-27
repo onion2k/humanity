@@ -3,6 +3,7 @@
 // era's data-theme, so everything inside wears that era's skin, and the
 // browser skips laying it out until the reader is near it.
 import { eraSpan, type Chapter } from "../data/chapters.ts";
+import type { Rendered } from "../data/markdown.ts";
 import { TEXTURES, textureTile } from "../dressing.ts";
 import type { Vocabularies } from "../data/timeline.ts";
 import EventCard from "./EventCard.astro";
@@ -11,9 +12,10 @@ import EventRow from "./EventRow.astro";
 interface Props {
   chapter: Chapter;
   vocabularies: Vocabularies;
+  caption: Rendered | undefined;
 }
 
-const { chapter, vocabularies } = Astro.props;
+const { chapter, vocabularies, caption } = Astro.props;
 const { era, events, cards, rows } = chapter;
 const count = `${events.length} ${events.length === 1 ? "event" : "events"}`;
 ---
@@ -25,17 +27,19 @@ const count = `${events.length} ${events.length === 1 ? "event" : "events"}`;
   aria-labelledby={`era-${era.id}`}
   style={`--cards: ${cards}; --rows: ${rows}`}
 >
+  {/* The spine runs the chapter's full height, past its heading, so it meets the bands either side unbroken. */}
+  <div class="spine" aria-hidden="true"></div>
   <header class="chapter-head">
     <h2 id={`era-${era.id}`}>{era.name}</h2>
     <p class="chapter-span">
       {eraSpan(era)} · {count}
     </p>
+    {caption && <p class="chapter-caption" set:html={caption.html} />}
   </header>
   <div
     class="track"
     style={{ "--texture": textureTile(era.id), "--texture-strength": TEXTURES[era.id].strength }}
   >
-    <div class="spine" aria-hidden="true"></div>
     <ol class="events">
       {events.map((placed) =>
         placed.event.featured ? (

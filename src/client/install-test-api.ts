@@ -79,17 +79,6 @@ function overflowing(): string[] {
   });
 }
 
-/** Any CSS colour as #rrggbb, as the screen draws it. Chrome reports a color-mix() in oklab, which a test cannot compare with the tokens. */
-const paint = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
-function asHex(colour: string): string {
-  if (!paint) return colour;
-  paint.clearRect(0, 0, 1, 1);
-  paint.fillStyle = colour;
-  paint.fillRect(0, 0, 1, 1);
-  const [r = 0, g = 0, b = 0] = paint.getImageData(0, 0, 1, 1).data;
-  return `#${[r, g, b].map((c) => c.toString(16).padStart(2, "0")).join("")}`;
-}
-
 function hudState(): PageState["hud"] {
   const hud = document.querySelector<HTMLElement>(".hud");
   if (!hud || getComputedStyle(hud).display === "none") return null;
@@ -100,25 +89,6 @@ function hudState(): PageState["hud"] {
     year: hud.querySelector(".hud-year")?.textContent ?? "",
     era: strongest?.textContent ?? "",
     theme: theme !== null && (ERA_IDS as readonly string[]).includes(theme) ? (theme as EraId) : null,
-  };
-}
-
-function seamState(): PageState["seam"] {
-  const seam = document.querySelector<HTMLElement>("[data-seam][data-active]");
-  const stage = seam?.querySelector<HTMLElement>(".seam-stage");
-  if (!seam || !stage) return null;
-  const theme = stage.dataset.theme ?? null;
-  return {
-    index: Number(seam.dataset.seam),
-    pc: Number(seam.style.getPropertyValue("--pc")),
-    pi: theme === seam.dataset.to ? 1 : 0,
-    theme: theme !== null && (ERA_IDS as readonly string[]).includes(theme) ? (theme as EraId) : null,
-    background: asHex(getComputedStyle(stage).backgroundColor),
-    text: [...seam.querySelectorAll<HTMLElement>("[data-layer]")].map((layer) => ({
-      layer: layer.dataset.layer ?? "",
-      colour: asHex(getComputedStyle(layer).color),
-      opacity: Number(getComputedStyle(layer).opacity),
-    })),
   };
 }
 
@@ -143,8 +113,8 @@ const api: TestApi = {
     const el = required(`[data-chapter="${CSS.escape(id)}"]`);
     await settleScroll(() => pageTop(el));
   },
-  async scrollToSeam(index, progress) {
-    const el = required(`[data-seam="${index}"]`);
+  async scrollToBand(index, progress) {
+    const el = required(`[data-band="${index}"]`);
     await settleScroll(() => pageTop(el) + progress * el.offsetHeight - window.innerHeight / 2);
   },
   async scrollToY(y) {
@@ -182,7 +152,6 @@ const api: TestApi = {
       eventCount: document.querySelectorAll("[data-event]").length,
       overflowing: overflowing(),
       hud: hudState(),
-      seam: seamState(),
       filter: tickedFilter(),
       dimmed: [...document.querySelectorAll("[data-event][data-dimmed]")].map(
         (el) => el.getAttribute("data-event") ?? "",

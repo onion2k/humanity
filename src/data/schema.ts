@@ -63,8 +63,8 @@ export const editorialSchema = z.object({
       }),
     )
     .default({}),
-  /** A one-line caption for each change of era, keyed "from-to" by era id, such as "print-industrial". Markdown. */
-  seams: z.record(z.string(), z.string().min(1)).default({}),
+  /** A one-line caption for each era, shown under its heading, keyed by era id such as "industrial". Markdown. */
+  eras: z.record(z.string(), z.string().min(1)).default({}),
 });
 
 export type RawEvent = z.infer<typeof rawEventSchema>;

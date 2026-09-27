@@ -1,5 +1,5 @@
 // The pictures the page is held to: the intro, the start of every chapter,
-// five points through every seam, and each edge case from the checklist on a card
+// every band between two eras, and each edge case from the checklist on a card
 // and on a row. A picture changes only for a change meant to move it, and
 // every one written is looked at before it is kept.
 import { expect, test, type Page } from "@playwright/test";
@@ -10,7 +10,7 @@ import {
   openTimeline,
   scrollToEra,
   scrollToEvent,
-  scrollToSeam,
+  scrollToBand,
   scrollToY,
   timeline,
 } from "./helpers.ts";
@@ -38,18 +38,12 @@ for (const era of ERA_IDS) {
   });
 }
 
-/** Through each seam: the earlier era with its text, into the blend, the midpoint, out of it, and the later era. */
-const SEAM_POINTS = [0.15, 0.4, 0.5, 0.6, 0.85];
-
+/** Each band, with the end of one era above it and the start of the next below. */
 for (let i = 0; i < ERA_IDS.length - 1; i++) {
-  for (const raw of SEAM_POINTS) {
-    test(`the seam from ${ERA_IDS[i]} to ${ERA_IDS[i + 1]}, ${Math.round(raw * 100)}% through`, async ({
-      page,
-    }) => {
-      await scrollToSeam(page, i, raw);
-      await picture(page, `seam-${ERA_IDS[i]}-${ERA_IDS[i + 1]}-${String(raw * 100).padStart(2, "0")}`);
-    });
-  }
+  test(`the band from ${ERA_IDS[i]} to ${ERA_IDS[i + 1]}`, async ({ page }) => {
+    await scrollToBand(page, i, 0.5);
+    await picture(page, `band-${ERA_IDS[i]}-${ERA_IDS[i + 1]}`);
+  });
 }
 
 const cases = [
@@ -95,24 +89,6 @@ for (const [name, match, what] of cases) {
 test("the end of the page", async ({ page }) => {
   await scrollToY(page, 1e9);
   await picture(page, "end");
-});
-
-test.describe("under reduced motion", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await openTimeline(page);
-  });
-
-  for (let i = 0; i < ERA_IDS.length - 1; i++) {
-    for (const raw of [0.45, 0.55]) {
-      test(`the seam from ${ERA_IDS[i]} to ${ERA_IDS[i + 1]}, ${Math.round(raw * 100)}% through`, async ({
-        page,
-      }) => {
-        await scrollToSeam(page, i, raw);
-        await picture(page, `reduced-seam-${ERA_IDS[i]}-${ERA_IDS[i + 1]}-${Math.round(raw * 100)}`);
-      });
-    }
-  }
 });
 
 test.describe("filters", () => {

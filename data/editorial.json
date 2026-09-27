@@ -87,13 +87,14 @@
       "allowYearInTitle": "AI 2027 is the scenario's title."
     }
   },
-  "seams": {
-    "antiquity-medieval": "Rome's western empire falls away, and news now travels at the pace of a pilgrim.",
-    "medieval-print": "Movable type arrives, and with it the worry that there are now too many books.",
-    "print-industrial": "Steam, rail, wire and the penny press: news moves faster than ever, and so does alarm.",
-    "industrial-machine": "Electric light, the motor car and, soon, the aeroplane.",
-    "machine-atomic": "One new weapon changes what people mean by the end of the world.",
-    "atomic-analog": "Television brings every crisis into the living room, and a photograph shows the Earth whole.",
-    "analog-digital": "The web opens to everyone, and every new worry can find its audience overnight."
+  "eras": {
+    "antiquity": "From plagues to labour-saving machines, the oldest worries already sound familiar.",
+    "medieval": "Rome's western empire falls away, and news now travels at the pace of a pilgrim.",
+    "print": "Movable type arrives, and with it the worry that there are now too many books.",
+    "industrial": "Steam, rail, wire and the penny press: news moves faster than ever, and so does alarm.",
+    "machine": "Electric light, the motor car and, soon, the aeroplane.",
+    "atomic": "One new weapon changes what people mean by the end of the world.",
+    "analog": "Television brings every crisis into the living room, and a photograph shows the Earth whole.",
+    "digital": "The web opens to everyone, and every new worry can find its audience overnight."
   }
 }

@@ -6,7 +6,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { READING_LINE } from "../src/engine/reading.ts";
 import { seeded, type Random } from "../src/random.ts";
-import { contrastRatio } from "../src/tokens/contrast.ts";
 import { openTimeline, scrollToEvent, scrollToY, settle, state, timeline } from "./helpers.ts";
 
 const STEPS = 25;
@@ -137,7 +136,7 @@ async function nextStep(page: Page, random: Random): Promise<Step> {
 /** The rules no step may break. Each returns what it found wrong, or nothing. */
 async function brokenRules(page: Page): Promise<string[]> {
   const expectedIds = timeline.events.map((e) => e.id);
-  const { overflowing, hud, seam } = await state(page);
+  const { overflowing, hud } = await state(page);
   const inPage = await page.evaluate((ids) => {
     const broken: string[] = [];
     const events = [...document.querySelectorAll<HTMLElement>("[data-event]")];
@@ -173,8 +172,8 @@ async function brokenRules(page: Page): Promise<string[]> {
     ...inPage,
     ...overflowing.map((o) => `cut off at the side: ${o}`),
     ...(await hudOutOfStep(page, hud?.year)),
-    ...seamTextBelowRatio(seam),
-    ...(await motionUnderReduce(page, seam)),
+    ...(await hudEraOutOfStep(page, hud?.theme ?? null)),
+    ...(await motionUnderReduce(page)),
     ...(await filterOutOfStep(page)),
   ];
 }
@@ -253,35 +252,33 @@ async function filterOutOfStep(page: Page): Promise<string[]> {
   });
 }
 
-/** Under reduced motion, no seam is part way through its blend and nothing on the page animates. */
-async function motionUnderReduce(
-  page: Page,
-  seam: Awaited<ReturnType<typeof state>>["seam"],
-): Promise<string[]> {
+/** Under reduced motion nothing on the page animates. */
+async function motionUnderReduce(page: Page): Promise<string[]> {
   const { reduce, animations } = await page.evaluate(() => ({
     reduce: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     animations: document.getAnimations().length,
   }));
-  if (!reduce) return [];
-  const broken: string[] = [];
-  if (seam && seam.pc !== 0 && seam.pc !== 1)
-    broken.push(`seam ${seam.index} is ${seam.pc} through its blend under reduced motion`);
-  if (animations > 0) broken.push(`${animations} animations run under reduced motion`);
-  return broken;
+  return reduce && animations > 0 ? [`${animations} animations run under reduced motion`] : [];
 }
 
-const RATIO: Record<string, number> = { caption: 4.5, "year-from": 3, "year-to": 3 };
-
-function seamTextBelowRatio(seam: Awaited<ReturnType<typeof state>>["seam"]): string[] {
-  if (!seam) return [];
-  return seam.text.flatMap((t) => {
-    if (t.opacity === 0) return [];
-    const ratio = contrastRatio(t.colour, seam.background);
-    const min = RATIO[t.layer] ?? 4.5;
-    return ratio < min
-      ? [`seam ${seam.index} ${t.layer} shows at ${ratio.toFixed(2)}:1, below ${min}:1`]
-      : [];
+/**
+ * The HUD wears the era of the chapter under the middle of the screen; in a band, the earlier era until the band's
+ * middle and the later one from it. Read from the page, not the engine.
+ */
+async function hudEraOutOfStep(page: Page, theme: string | null): Promise<string[]> {
+  const expected = await page.evaluate(() => {
+    const middle = window.innerHeight / 2;
+    for (const block of document.querySelectorAll<HTMLElement>("[data-chapter], [data-band]")) {
+      const box = block.getBoundingClientRect();
+      if (middle < box.top || middle >= box.bottom) continue;
+      if (block.dataset.chapter) return block.dataset.chapter;
+      return middle >= box.top + box.height / 2 ? block.dataset.to : block.dataset.from;
+    }
+    return null;
   });
+  return expected !== null && expected !== undefined && theme !== expected
+    ? [`the HUD wears ${theme ?? "nothing"} while ${expected} is under the middle of the screen`]
+    : [];
 }
 
 test.describe("fuzz", () => {

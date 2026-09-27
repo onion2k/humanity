@@ -1,0 +1,24 @@
+---
+// The join between two eras: a short band that blends one era's ground into
+// the next, with the spine running straight through it. Nothing is written in
+// it, so no text ever sits on a blended ground, and it needs no script.
+import type { EraId } from "../eras.ts";
+
+interface Props {
+  index: number;
+  from: EraId;
+  to: EraId;
+}
+
+const { index, from, to } = Astro.props;
+const style = [
+  `--band-from: var(--${from}-ground)`,
+  `--band-to: var(--${to}-ground)`,
+  `--spine-from: var(--${from}-rule)`,
+  `--spine-to: var(--${to}-rule)`,
+].join("; ");
+---
+
+<div class="era-band" data-band={index} data-from={from} data-to={to} aria-hidden="true" style={style}>
+  <div class="spine"></div>
+</div>

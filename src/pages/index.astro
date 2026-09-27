@@ -1,19 +1,16 @@
 ---
 // The timeline: an intro, then every era as a chapter with its events on the
-// spine, and an empty seam between each pair of eras. The page only draws the
-// plan chapters() makes of the validated data.
+// spine, and a short band joining each pair of eras, so the timeline runs on
+// unbroken. The page only draws the plan chapters() makes of the validated data.
 import "../styles/base.css";
 import Chapter from "../components/Chapter.astro";
+import EraBand from "../components/EraBand.astro";
 import FilterPanel from "../components/FilterPanel.astro";
 import Hud from "../components/Hud.astro";
-import Seam from "../components/Seam.astro";
 import { chapters } from "../data/chapters.ts";
 import { pageTimeline } from "../data/page.ts";
-import { seamFades } from "../tokens/seams.ts";
-import { pageTokens } from "../tokens/page.ts";
 
-const { events, vocabularies, seams } = pageTimeline();
-const tokens = pageTokens();
+const { events, vocabularies, captions } = pageTimeline();
 const plan = chapters(events);
 const first = events[0];
 const last = events[events.length - 1];
@@ -53,19 +50,11 @@ const last = events[events.length - 1];
     </header>
     <main>
       {plan.map((chapter, i) => {
-        const seam = seams[i];
+        const next = plan[i + 1];
         return (
           <>
-            <Chapter chapter={chapter} vocabularies={vocabularies} />
-            {seam && (
-              <Seam
-                index={i}
-                from={seam.from}
-                to={seam.to}
-                caption={seam.caption}
-                fades={seamFades(tokens, seam.from, seam.to)}
-              />
-            )}
+            <Chapter chapter={chapter} vocabularies={vocabularies} caption={captions[chapter.era.id]} />
+            {next && <EraBand index={i} from={chapter.era.id} to={next.era.id} />}
           </>
         );
       })}

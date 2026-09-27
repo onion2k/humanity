@@ -47,17 +47,10 @@ export interface Issue {
   message: string;
 }
 
-/** The change from one era to the next, and the line of copy it shows. */
-export interface SeamText {
-  key: string;
-  from: EraId;
-  to: EraId;
-  caption?: Rendered;
-}
-
 export interface Timeline {
   events: TimelineEvent[];
-  seams: SeamText[];
+  /** Each era's one-line caption, shown under its heading, where the overlay gives one. */
+  captions: Partial<Record<EraId, Rendered>>;
   vocabularies: Vocabularies;
   issues: Issue[];
 }
@@ -85,10 +78,10 @@ export function buildTimeline(rawInput: unknown, editorialInput: unknown): Timel
   const issues: Issue[] = [];
   if (!raw.success) issues.push(...schemaIssues("panic-and-wonder.json", raw.error));
   if (!editorial.success) issues.push(...schemaIssues("editorial.json", editorial.error));
-  if (!raw.success || !editorial.success) return { events: [], seams: [], vocabularies: EMPTY_VOCABULARIES, issues };
+  if (!raw.success || !editorial.success) return { events: [], captions: {}, vocabularies: EMPTY_VOCABULARIES, issues };
 
   const { vocabularies, events: rawEvents, eventCount } = raw.data;
-  const { featured, events: notes, seams: captions } = editorial.data;
+  const { featured, events: notes, eras: captionSources } = editorial.data;
 
   const error = (code: string, message: string, id?: string): void => {
     issues.push(id === undefined ? { level: "error", code, message } : { level: "error", code, id, message });
@@ -193,21 +186,15 @@ export function buildTimeline(rawInput: unknown, editorialInput: unknown): Timel
     return event;
   });
 
-  const seams = ERAS.slice(0, -1).flatMap((era, i): SeamText[] => {
-    const next = ERAS[i + 1];
-    if (!next) return [];
-    const key = `${era.id}-${next.id}`;
-    const source = captions[key];
-    if (source === undefined) {
-      warn("no-caption", key, `The change from ${era.name} to ${next.name} has no caption`);
-      return [{ key, from: era.id, to: next.id }];
-    }
-    return [{ key, from: era.id, to: next.id, caption: render(source, undefined, key, "caption") }];
-  });
-  const seamKeys = new Set(seams.map((seam) => seam.key));
-  for (const key of Object.keys(captions)) {
-    if (!seamKeys.has(key)) {
-      error("editorial-unknown-seam", `editorial.json has a caption for "${key}", which is not a change between neighbouring eras`, key);
+  const captions: Partial<Record<EraId, Rendered>> = {};
+  for (const era of ERAS) {
+    const source = captionSources[era.id];
+    if (source === undefined) warn("no-caption", era.id, `${era.name} has no caption`);
+    else captions[era.id] = render(source, undefined, era.id, "caption");
+  }
+  for (const key of Object.keys(captionSources)) {
+    if (!ERAS.some((era) => era.id === key)) {
+      error("editorial-unknown-era", `editorial.json has a caption for "${key}", which is not an era`, key);
     }
   }
 
@@ -217,7 +204,7 @@ export function buildTimeline(rawInput: unknown, editorialInput: unknown): Timel
   const vocab = (entries: Vocabulary[]): VocabularyItem[] => entries.map(({ id, label }) => ({ id, label }));
   return {
     events: built,
-    seams,
+    captions,
     vocabularies: {
       kinds: vocab(vocabularies.kinds),
       reactions: vocab(vocabularies.reactions),

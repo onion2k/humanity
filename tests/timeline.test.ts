@@ -47,14 +47,10 @@ function rawExport(events: Record<string, unknown>[]): Record<string, unknown> {
   return { ...realExport, events, eventCount: events.length };
 }
 
-/** An overlay with a caption on every seam, so a test about publishing sees only the issues it sets up. */
-const CAPTIONED = {
-  seams: Object.fromEntries(
-    ERA_IDS.slice(0, -1).map((from, i) => [`${from}-${ERA_IDS[i + 1] ?? ""}`, "A caption."]),
-  ),
-};
+/** An overlay with a caption for every era, so a test about publishing sees only the issues it sets up. */
+const CAPTIONED = { eras: Object.fromEntries(ERA_IDS.map((era) => [era, "A caption."])) };
 
-/** The issues about events, leaving out the seams' captions, which an overlay built for one event does not supply. */
+/** The issues about events, leaving out the eras' captions, which an overlay built for one event does not supply. */
 function eventIssues(issues: Issue[]): Issue[] {
   return issues.filter((i) => i.code !== "no-caption");
 }
@@ -107,53 +103,48 @@ describe("the real export", () => {
     expect(new Set(warnings.map((w) => w.code))).toEqual(new Set(["no-sources", "year-in-title"]));
   });
 
-  it("has a caption for every seam", () => {
-    expect(result.seams.map((seam) => [seam.from, seam.to, seam.caption !== undefined])).toEqual(
-      ERA_IDS.slice(0, -1).map((from, i) => [from, ERA_IDS[i + 1], true]),
+  it("has a caption for every era", () => {
+    expect(ERA_IDS.map((era) => [era, result.captions[era] !== undefined])).toEqual(
+      ERA_IDS.map((era) => [era, true]),
     );
   });
 });
 
-describe("seam captions", () => {
+describe("era captions", () => {
   const one = rawExport([rawEvent()]);
 
-  it("gives every pair of neighbouring eras a seam, keyed from-to, with its caption rendered", () => {
-    const { seams } = buildTimeline(one, {
-      seams: { "print-industrial": "Steam, then *The Times* on a steam press." },
+  it("gives an era its caption, rendered, keyed by the era's id", () => {
+    const { captions } = buildTimeline(one, {
+      eras: { industrial: "Steam, then *The Times* on a steam press." },
     });
-    expect(seams).toHaveLength(ERA_IDS.length - 1);
-    const seam = seams.find((s) => s.key === "print-industrial");
-    expect(seam?.caption).toEqual({
+    expect(captions.industrial).toEqual({
       text: "Steam, then The Times on a steam press.",
       html: "Steam, then <em>The Times</em> on a steam press.",
     });
+    expect(captions.print).toBeUndefined();
   });
 
-  it("warns about a seam with no caption, which stops publishing but not the build", () => {
-    const { issues } = buildTimeline(one, { seams: { "print-industrial": "Steam." } });
+  it("warns about an era with no caption, which stops publishing but not the build", () => {
+    const { issues } = buildTimeline(one, { eras: { industrial: "Steam." } });
     const missing = issues.filter((i) => i.code === "no-caption").map((i) => i.id);
-    expect(missing).toHaveLength(ERA_IDS.length - 2);
-    expect(missing).not.toContain("print-industrial");
+    expect(missing).toEqual(ERA_IDS.filter((era) => era !== "industrial"));
     expect(issues.find((i) => i.code === "no-caption")?.level).toBe("warning");
   });
 
   it.each([
+    ["an era that does not exist", { eras: { bronze: "No such era." } }, "bronze"],
     [
-      "a seam between eras that are not neighbours",
-      { seams: { "print-machine": "Skips an era." } },
-      "print-machine",
+      "a caption still keyed the old way, by the change between two eras",
+      { eras: { "print-industrial": "Old." } },
+      "print-industrial",
     ],
-    ["a seam the wrong way round", { seams: { "industrial-print": "Backwards." } }, "industrial-print"],
-    ["an era that does not exist", { seams: { "print-bronze": "No such era." } }, "print-bronze"],
   ])("reports %s as an error", (_, editorial, key) => {
-    expect(codes(buildTimeline(one, editorial).issues)).toContain(`error:editorial-unknown-seam:${key}`);
+    expect(codes(buildTimeline(one, editorial).issues)).toContain(`error:editorial-unknown-era:${key}`);
   });
 
   it("reports a caption with markdown it cannot render", () => {
-    const { issues } = buildTimeline(one, {
-      seams: { "print-industrial": "A [link](https://example.org)." },
-    });
-    expect(codes(issues)).toContain("error:markdown:print-industrial");
+    const { issues } = buildTimeline(one, { eras: { industrial: "A [link](https://example.org)." } });
+    expect(codes(issues)).toContain("error:markdown:industrial");
   });
 });
 
@@ -410,7 +401,7 @@ describe("the gates on the data", () => {
     }).not.toThrow();
     expect(() => {
       assertPublishable(buildTimeline(rawExport([rawEvent()]), {}));
-    }).toThrow(/7 issues:\n {2}warning no-caption antiquity-medieval/);
+    }).toThrow(/8 issues:\n {2}warning no-caption antiquity/);
     expect(() => {
       assertPublishable(buildTimeline(rawExport([rawEvent({ source: null })]), CAPTIONED));
     }).toThrow(/1 issue:\n {2}warning no-sources 1910-comet-pills/);

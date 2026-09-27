@@ -27,8 +27,8 @@ export async function scrollToEra(page: Page, id: EraId): Promise<void> {
   await page.evaluate((i) => window.__pw?.scrollToEra(i), id);
 }
 
-export async function scrollToSeam(page: Page, index: number, progress: number): Promise<void> {
-  await page.evaluate(([i, p]) => window.__pw?.scrollToSeam(i, p), [index, progress] as const);
+export async function scrollToBand(page: Page, index: number, progress: number): Promise<void> {
+  await page.evaluate(([i, p]) => window.__pw?.scrollToBand(i, p), [index, progress] as const);
 }
 
 export async function scrollToY(page: Page, y: number): Promise<void> {

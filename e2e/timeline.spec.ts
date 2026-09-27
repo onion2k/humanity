@@ -1,19 +1,10 @@
-// The static timeline, as a reader meets it: every event on the spine once,
-// in its era's skin, cards either side and rows across, seams that change the
-// skin at their midpoint, and rows that open from the keyboard. Each test is
-// one of step 3's acceptance criteria.
+// The timeline, as a reader meets it: every event on the spine once, in its
+// era's skin, cards either side and rows across, and rows that open from the
+// keyboard. Each test is one of step 3's acceptance criteria.
 import { expect, test } from "@playwright/test";
 import { rowMeta } from "../src/data/chapters.ts";
 import { ERA_IDS } from "../src/eras.ts";
-import {
-  findEvent,
-  openTimeline,
-  scrollToEra,
-  scrollToEvent,
-  scrollToSeam,
-  state,
-  timeline,
-} from "./helpers.ts";
+import { findEvent, openTimeline, scrollToEra, scrollToEvent, state, timeline } from "./helpers.ts";
 
 test.beforeEach(async ({ page }) => {
   await openTimeline(page);
@@ -117,20 +108,6 @@ test("no event shows more than three tags", async ({ page }) => {
     .evaluateAll((els) => els.map((el) => el.querySelectorAll(".tag").length));
   expect(Math.max(...counts)).toBeLessThanOrEqual(3);
   expect(Math.min(...counts)).toBeGreaterThanOrEqual(1);
-});
-
-test("each seam is 170vh whose skin changes at its midpoint", async ({ page }) => {
-  const seams = page.locator("[data-seam]");
-  await expect(seams).toHaveCount(ERA_IDS.length - 1);
-  const vh = page.viewportSize()?.height ?? 0;
-  for (let i = 0; i < ERA_IDS.length - 1; i++) {
-    const box = await seams.nth(i).boundingBox();
-    expect(Math.abs((box?.height ?? 0) - 1.7 * vh), `seam ${i}`).toBeLessThan(2);
-    await scrollToSeam(page, i, 0.45);
-    expect((await state(page)).eraAtTop, `seam ${i} before its midpoint`).toBe(ERA_IDS[i]);
-    await scrollToSeam(page, i, 0.55);
-    expect((await state(page)).eraAtTop, `seam ${i} after its midpoint`).toBe(ERA_IDS[i + 1]);
-  }
 });
 
 test("rows open and close from the keyboard, with the focus ring showing", async ({ page }) => {
