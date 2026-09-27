@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
 import { assertContrast } from "../src/tokens/contrast.ts";
 import { tokensToCss } from "../src/tokens/css.ts";
+import { assertDressingContrast } from "../src/tokens/dressing.ts";
 import { assertSeamText } from "../src/tokens/seams.ts";
 import { TOKENS_PATH, loadTokens } from "../src/tokens/tokens.ts";
 
@@ -38,6 +39,7 @@ export default function tokens(): AstroIntegration {
         try {
           assertContrast(loaded);
           assertSeamText(loaded);
+          assertDressingContrast(loaded);
         } catch (error) {
           // The dev server keeps running so the palette can be fixed while looking at it.
           if (command === "build") throw error;

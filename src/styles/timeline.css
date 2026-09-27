@@ -89,6 +89,18 @@
   padding-block: var(--space-4) var(--space-16);
 }
 
+/* The era's texture, behind the spine and the events and never the heading: its lines would take the accent of
+   the heading below its ratio in two eras. The shape is a mask from src/dressing.ts; the colour is the era's rule. */
+.track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--rule);
+  opacity: var(--texture-strength);
+  mask: var(--texture);
+  pointer-events: none;
+}
+
 .spine {
   position: absolute;
   inset-block: 0;

@@ -3,6 +3,7 @@
 // era's data-theme, so everything inside wears that era's skin, and the
 // browser skips laying it out until the reader is near it.
 import { eraSpan, type Chapter } from "../data/chapters.ts";
+import { TEXTURES, textureTile } from "../dressing.ts";
 import type { Vocabularies } from "../data/timeline.ts";
 import EventCard from "./EventCard.astro";
 import EventRow from "./EventRow.astro";
@@ -30,7 +31,10 @@ const count = `${events.length} ${events.length === 1 ? "event" : "events"}`;
       {eraSpan(era)} · {count}
     </p>
   </header>
-  <div class="track">
+  <div
+    class="track"
+    style={{ "--texture": textureTile(era.id), "--texture-strength": TEXTURES[era.id].strength }}
+  >
     <div class="spine" aria-hidden="true"></div>
     <ol class="events">
       {events.map((placed) =>

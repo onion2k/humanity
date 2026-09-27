@@ -1,9 +1,9 @@
 {
   "desktop": {
-    "htmlBytes": 440066,
-    "htmlGzipBytes": 48463,
-    "cssBytes": 27775,
-    "scriptBytes": 7807,
+    "htmlBytes": 442883,
+    "htmlGzipBytes": 49453,
+    "cssBytes": 28207,
+    "scriptBytes": 7883,
     "fontsOnLoad": 5,
     "fontBytesOnLoad": 87376,
     "domNodes": 7157,
@@ -20,10 +20,10 @@
     "filterMs": 3
   },
   "phone": {
-    "htmlBytes": 440066,
-    "htmlGzipBytes": 48463,
-    "cssBytes": 27775,
-    "scriptBytes": 7807,
+    "htmlBytes": 442883,
+    "htmlGzipBytes": 49453,
+    "cssBytes": 28207,
+    "scriptBytes": 7883,
     "fontsOnLoad": 5,
     "fontBytesOnLoad": 87376,
     "domNodes": 7157,
