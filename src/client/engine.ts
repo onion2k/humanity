@@ -2,7 +2,7 @@
 // measures the chapters and seams, asks the engine where the reader is, and
 // writes back only what changed: the blending seam's progress and text, and
 // the HUD. All the deciding is in src/engine/, which is tested headless.
-import { textOpacity, type Fade } from "../engine/blend.ts";
+import { textOpacity, yearFaces, type Fade } from "../engine/blend.ts";
 import {
   READING_LINE,
   hudYear,
@@ -72,7 +72,8 @@ function writeSeam(parts: SeamParts, pc: number, pi: number, active: boolean): v
   const opacities = parts.layers.map(({ name }) => {
     if (name === "caption") return textOpacity(pc, parts.fades.caption);
     const visible = textOpacity(pc, parts.fades.year);
-    return name === "year-from" ? (1 - pc) * visible : pc * visible;
+    const faces = yearFaces(pc);
+    return name === "year-from" ? faces.from * visible : faces.to * visible;
   });
   const key = `${pc.toFixed(4)}|${pi}|${active}|${opacities.map((o) => o.toFixed(3)).join(",")}`;
   if (key === parts.written) return;

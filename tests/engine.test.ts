@@ -10,7 +10,9 @@ import {
   blendAt,
   seamRaw,
   smoothstep,
+  YEAR_CROSSFADE,
   textOpacity,
+  yearFaces,
 } from "../src/engine/blend.ts";
 import {
   READING_LINE,
@@ -205,5 +207,31 @@ describe("hudYear", () => {
   it("gives an empty chapter's own first year before its seam, as the chapter itself shows", () => {
     const beforePrint = { era: "medieval" as const, seam: { index: 1, blend: blendAt(0.4) } };
     expect(hudYear(beforePrint, index({}), line)).toBe(500);
+  });
+});
+
+describe("yearFaces", () => {
+  it("shows only the earlier era's face until the crossfade, and only the later one's after it", () => {
+    expect(yearFaces(0)).toEqual({ from: 1, to: 0 });
+    // At the window's edges the arithmetic is only close to whole, which the page rounds away.
+    expect(yearFaces(0.5 - YEAR_CROSSFADE / 2).to).toBeCloseTo(0, 10);
+    expect(yearFaces(0.5 + YEAR_CROSSFADE / 2).from).toBeCloseTo(0, 10);
+    expect(yearFaces(1)).toEqual({ from: 0, to: 1 });
+  });
+
+  it("crossfades over a short window at the midpoint, so the two faces overlap only briefly", () => {
+    expect(YEAR_CROSSFADE).toBeLessThanOrEqual(0.25);
+    expect(yearFaces(0.5).from).toBeCloseTo(0.5, 10);
+    expect(yearFaces(0.5).to).toBeCloseTo(0.5, 10);
+  });
+
+  it("always adds up to one face's worth, and never runs backwards", () => {
+    let last = -1;
+    for (let k = 0; k <= 1000; k++) {
+      const { from, to } = yearFaces(k / 1000);
+      expect(from + to).toBeCloseTo(1, 10);
+      expect(to).toBeGreaterThanOrEqual(last);
+      last = to;
+    }
   });
 });

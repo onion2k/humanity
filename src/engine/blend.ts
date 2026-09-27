@@ -8,6 +8,12 @@ export const BLEND_START = 0.3;
 export const BLEND_SPAN = 0.4;
 /** Text fades over this much of the blend, finishing at its limit. */
 export const FADE_BAND = 0.05;
+/**
+ * The big year crossfades from the earlier era's face to the later one's over this much of the blend, centred on
+ * the midpoint. Across the whole blend, the light seams showed both faces at once for most of the way, a double
+ * image; this keeps the overlap to a moment.
+ */
+export const YEAR_CROSSFADE = 0.2;
 
 export interface Blend {
   /** How far the middle of the viewport is through the seam, from 0 to 1. */
@@ -44,4 +50,10 @@ export function blendAt(raw: number, reducedMotion = false): Blend {
 export function textOpacity(pc: number, fade: Fade): number {
   if (pc < 0.5) return fade.until === null ? 1 : clamp((fade.until - pc) / FADE_BAND);
   return fade.from === null ? 1 : clamp((pc - fade.from) / FADE_BAND);
+}
+
+/** How strongly each of the big year's two faces shows. They always add up to one. */
+export function yearFaces(pc: number): { from: number; to: number } {
+  const to = clamp((pc - (0.5 - YEAR_CROSSFADE / 2)) / YEAR_CROSSFADE);
+  return { from: 1 - to, to };
 }

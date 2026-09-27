@@ -152,3 +152,19 @@ test("the HUD names the era, and is hidden from screen readers, which have the c
   expect(s.hud?.era).toBe(ERAS[4]?.name);
   await expect(page.locator(".hud")).toHaveAttribute("aria-hidden", "true");
 });
+
+test("in the light seams the big year shows in one face until just before the midpoint, and one just after", async ({
+  page,
+}) => {
+  for (const seam of SEAMS.filter((s) => ["antiquity", "medieval", "machine"].includes(s.from))) {
+    for (const [raw, showing] of [
+      [0.4, "year-from"],
+      [0.6, "year-to"],
+    ] as const) {
+      await scrollToSeam(page, seam.index, raw);
+      const text = (await state(page)).seam?.text ?? [];
+      const faces = text.filter((t) => t.layer.startsWith("year") && t.opacity > 0).map((t) => t.layer);
+      expect(faces, `${seam.from}→${seam.to} at ${raw}`).toEqual([showing]);
+    }
+  }
+});
