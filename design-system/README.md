@@ -73,4 +73,5 @@ A scroll-driven timeline of how people reacted to the new and the unknown, from 
 ## Iconography
 
 - The only icons are the four reaction marks, as solid-fill 20×20 SVG. Add new reactions as new silhouettes.
+- Era art is decoration, not iconography: it carries no meaning, is hidden from screen readers and never stands for anything a reader must understand. Each era has a tall piece for each margin and a square emblem, drawn as flat line art from one or two of the era's cues, in the era's `accent` through a mask. On a wide screen the pieces stand in the margins, pinned in view through their chapter and faint; where there are no margins the emblem stands above the chapter's heading instead. Chris added this on 2026-09-27.
 - No emoji. There are no logos yet: the working title *Panic & Wonder* is set in the era's display face.
