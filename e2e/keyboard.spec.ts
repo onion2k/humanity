@@ -133,6 +133,19 @@ test("a screen reader finds each era as a heading with its span, and the Filter 
   `);
 });
 
+test("a screen reader is given the open panel straight after its button, before the rest of the page", async ({
+  page,
+}) => {
+  await page.locator("button.filter-toggle").click();
+  await expect(page.locator("body")).toMatchAriaSnapshot(`
+    - button "Filter" [expanded]
+    - region "Filter events"
+    - banner
+    - main
+    - contentinfo
+  `);
+});
+
 test("after focusing a row, scrolling away with the wheel is never undone", async ({ page }) => {
   const row = findEvent((e) => e.era === "machine" && !e.featured, "a machine row");
   // The row sits under the chrome, so the page means to bring it clear; but before it can, the reader scrolls 700px
