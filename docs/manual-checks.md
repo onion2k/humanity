@@ -46,7 +46,7 @@ Turn it on in Settings › Accessibility › VoiceOver, or with three clicks of 
 - **The rotor set to Landmarks** finds the eight eras by name.
 - **The HUD is never read.** The chapter headings carry the same information.
 - **Words set in capitals,** such as Filter, the reactions on rows and the tags, are read as words and not spelt out.
-- **The Filter button** reads "Filter, button, collapsed". Double-tap it and the sheet opens. The sheet comes last in the page's reading order, after the footer, so touch the sheet to move into it: swiping on from the button reads the title next.
+- **The Filter button** reads "Filter, button, collapsed". Double-tap it and the sheet opens. The sheet follows its button in the page's reading order, so the next swipe goes into it, starting with its title, "Filter events".
 - **In the sheet,** each box reads its word and whether it's ticked, under Reaction, Region or Theme. Ticking one announces the new count.
 - **With a filter set,** the Filter button reads the number that match after its name, and dimmed events are still read out. They're dimmed, not hidden.
 - **The era menu** reads each era's name, span and count as one link. Double-tap one and the sheet closes and the page moves to that era. The next swipe should carry on from the era's heading.
@@ -59,8 +59,8 @@ Turn it on with Cmd+F5, or hold Cmd and press Touch ID three times. Use Safari, 
 - **Tab across a change of era** carries on from the last row of one era to the first row of the next, and the page follows.
 - **Shift+Tab** goes back up through the same rows, each again clear of the Filter button and HUD.
 - **Enter or Space** on a row opens it, and again closes it.
-- **The Filter button** opens its panel with Enter or Space, and again closes it. The panel's boxes come after the last row in the Tab order, not after the button, so Tab from the button goes to the first row.
-- **In the panel,** click once on its title, then carry on by keyboard. Tab moves from box to box, then to Clear filters and the eight eras. Space ticks a box and the count changes. Escape closes the panel and puts the focus back on the Filter button, with the filter still set.
+- **The Filter button** opens its panel with Enter or Space, and again closes it. With the panel open, Tab goes from the button into it: from box to box, then to Clear filters and the eight eras. Shift+Tab comes back the same way to the button. With the panel shut, Tab from the button goes to the first row.
+- **In the panel,** Space ticks a box and the count changes. Escape closes the panel and puts the focus back on the Filter button, with the filter still set.
 - **The rotor** (VO-U) lists the title, the eight eras and the cards' titles under Headings, and the eight eras by name under Landmarks. With the panel open it lists "Filter events" and "Jump to an era" as well.
 - **Safari's rendering:** every band blends evenly, with no hard edge above or below it (this relies on `linear-gradient(in oklab, …)`), and the spine runs through it unbroken. Every card has its diamond on the spine and a focused row its whole ring: both are drawn outside the event's own box, in the margin that `overflow-clip-margin` allows. Every row's title ends in a small +, the tags have dots between them, and the chapters' layout matches Chrome's.
 

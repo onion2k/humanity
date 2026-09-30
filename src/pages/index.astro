@@ -41,6 +41,9 @@ const last = events[events.length - 1];
       </button>
       <Hud />
     </div>
+    {/* Straight after its button, so Tab and a screen reader go from the button into the open panel, and not through
+        every row first. The panel is pinned to the screen, so where it stands in the page moves nothing it draws. */}
+    <FilterPanel vocabularies={vocabularies} chapters={plan} total={events.length} />
     <header class="intro">
       <h1>Panic &amp; Wonder</h1>
       <p>How people have reacted to the new and the unknown, from omens in antiquity to AI.</p>
@@ -66,7 +69,6 @@ const last = events[events.length - 1];
         </p>
       </div>
     </footer>
-    <FilterPanel vocabularies={vocabularies} chapters={plan} total={events.length} />
     <script>
       import "../client/engine.ts";
       import "../client/filters.ts";
