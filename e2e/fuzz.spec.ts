@@ -175,6 +175,7 @@ async function brokenRules(page: Page): Promise<string[]> {
     ...(await hudEraOutOfStep(page, hud?.theme ?? null)),
     ...(await motionUnderReduce(page)),
     ...(await filterOutOfStep(page)),
+    ...(await focusBehindPanel(page)),
   ];
 }
 
@@ -259,6 +260,21 @@ async function motionUnderReduce(page: Page): Promise<string[]> {
     animations: document.getAnimations().length,
   }));
   return reduce && animations > 0 ? [`${animations} animations run under reduced motion`] : [];
+}
+
+/**
+ * While the panel is open, nothing in the page behind it has the keyboard focus: the panel closes as the focus moves
+ * on, or on a phone the sheet would hide whatever took it.
+ */
+async function focusBehindPanel(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const panel = document.querySelector<HTMLElement>("#filter-panel");
+    const focused = document.activeElement;
+    if (!panel || panel.hidden || !(focused instanceof HTMLElement) || focused === document.body) return [];
+    if (panel.contains(focused) || focused.classList.contains("filter-toggle")) return [];
+    const what = focused.closest("[data-event]")?.getAttribute("data-event") ?? focused.tagName;
+    return [`the panel is open while ${what}, behind it, has the focus`];
+  });
 }
 
 /**

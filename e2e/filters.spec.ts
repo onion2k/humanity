@@ -12,7 +12,7 @@ import {
   type Filter,
 } from "../src/engine/filter.ts";
 import { ERAS } from "../src/eras.ts";
-import { findEvent, openTimeline, scrollToEra, settle, state, timeline } from "./helpers.ts";
+import { findEvent, openTimeline, scrollToEra, scrollToEvent, settle, state, timeline } from "./helpers.ts";
 
 const filter = (f: Partial<Filter>): Filter => ({ ...EMPTY_FILTER, ...f });
 const CASES: [string, Filter][] = [
@@ -156,6 +156,32 @@ test("with the panel open, Tab goes from its button through the panel in the ord
   for (let i = 0; i < shown.length; i++) await page.keyboard.press("Shift+Tab");
   await expect(button).toBeFocused();
   expect((await state(page)).panelOpen).toBe(true);
+});
+
+test("the panel closes when the focus moves on into the page, by Tab past its last era or by a press on a row", async ({
+  page,
+}) => {
+  const button = page.locator("button.filter-toggle");
+  const row = findEvent((e) => !e.featured, "the first row");
+  const summary = page.locator(`[data-event="${row.id}"] > summary`);
+  // By keyboard: in from the button, through everything the panel shows, and one Tab more.
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  const stops = await page.locator("#filter-panel :is(input, button, a)").count();
+  for (let i = 0; i < stops; i++) await page.keyboard.press("Tab");
+  expect((await state(page)).panelOpen, "open while the focus is on its last era").toBe(true);
+  await page.keyboard.press("Tab");
+  await expect(summary).toBeFocused();
+  expect((await state(page)).panelOpen, "shut once a row has the focus").toBe(false);
+  await expect(button).toHaveAttribute("aria-expanded", "false");
+
+  // By pointer: with the panel open again, a press on a row beside it opens the row and shuts the panel.
+  await button.click();
+  expect((await state(page)).panelOpen).toBe(true);
+  await scrollToEvent(page, row.id, 72);
+  await summary.click({ position: { x: 60, y: 12 } });
+  expect((await state(page)).openRows).toEqual([row.id]);
+  expect((await state(page)).panelOpen, "shut once a row is pressed").toBe(false);
 });
 
 test("every checkbox has a label a screen reader will read, and reactions keep their shape", async ({

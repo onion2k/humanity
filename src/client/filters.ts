@@ -94,4 +94,10 @@ if (panel && toggle) {
       if (heading) void landOn(heading);
     });
   }
+  // So does the focus moving on into the page, by Tab past the last era or a press on a row: the panel would lie
+  // over whatever took it, and on a phone hide it whole. Its own button keeps it open.
+  document.addEventListener("focusin", ({ target }) => {
+    if (panel.hidden || target === toggle || (target instanceof Node && panel.contains(target))) return;
+    open(false);
+  });
 }

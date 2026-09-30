@@ -59,7 +59,8 @@ Turn it on with Cmd+F5, or hold Cmd and press Touch ID three times. Use Safari, 
 - **Tab across a change of era** carries on from the last row of one era to the first row of the next, and the page follows.
 - **Shift+Tab** goes back up through the same rows, each again clear of the Filter button and HUD.
 - **Enter or Space** on a row opens it, and again closes it.
-- **The Filter button** opens its panel with Enter or Space, and again closes it. With the panel open, Tab goes from the button into it: from box to box, then to Clear filters and the eight eras. Shift+Tab comes back the same way to the button. With the panel shut, Tab from the button goes to the first row.
+- **The Filter button** opens its panel with Enter or Space, and again closes it. With the panel shut, Tab from the button goes to the first row.
+- **With the panel open,** Tab goes from the button into it: from box to box, then to Clear filters and the eight eras. Shift+Tab comes back the same way to the button. Tab on past the last era goes to the first row, and the panel closes behind it.
 - **In the panel,** Space ticks a box and the count changes. Escape closes the panel and puts the focus back on the Filter button, with the filter still set.
 - **The rotor** (VO-U) lists the title, the eight eras and the cards' titles under Headings, and the eight eras by name under Landmarks. With the panel open it lists "Filter events" and "Jump to an era" as well.
 - **Safari's rendering:** every band blends evenly, with no hard edge above or below it (this relies on `linear-gradient(in oklab, …)`), and the spine runs through it unbroken. Every card has its diamond on the spine and a focused row its whole ring: both are drawn outside the event's own box, in the margin that `overflow-clip-margin` allows. Every row's title ends in a small +, the tags have dots between them, and the chapters' layout matches Chrome's.
